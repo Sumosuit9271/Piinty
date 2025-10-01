@@ -51,7 +51,29 @@ const Index = () => {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setGroupData(parsed);
+        
+        // Migrate old data format (numbers) to new format (arrays)
+        const migratedPints: Record<string, PintEntry[]> = {};
+        Object.entries(parsed.pints || {}).forEach(([key, value]) => {
+          if (typeof value === 'number') {
+            // Old format: convert number to array of entries
+            migratedPints[key] = Array.from({ length: value }, () => ({
+              note: "",
+              timestamp: Date.now(),
+            }));
+          } else if (Array.isArray(value)) {
+            // New format: keep as is
+            migratedPints[key] = value;
+          } else {
+            // Invalid format: reset to empty array
+            migratedPints[key] = [];
+          }
+        });
+
+        setGroupData({
+          ...parsed,
+          pints: migratedPints,
+        });
       } catch (e) {
         console.error("Failed to parse saved data", e);
       }

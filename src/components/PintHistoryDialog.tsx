@@ -37,6 +37,9 @@ export function PintHistoryDialog({
     });
   };
 
+  // Safety check: ensure pints is always an array
+  const safePints = Array.isArray(pints) ? pints : [];
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-lg">
@@ -51,14 +54,14 @@ export function PintHistoryDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {pints.length === 0 ? (
+        {safePints.length === 0 ? (
           <div className="py-8 text-center text-muted-foreground">
             No pints owed
           </div>
         ) : (
           <ScrollArea className="max-h-[400px] pr-4">
             <div className="space-y-2">
-              {pints.map((pint, index) => (
+              {safePints.map((pint, index) => (
                 <div
                   key={index}
                   className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg group"
@@ -89,7 +92,7 @@ export function PintHistoryDialog({
 
         <div className="flex justify-between items-center pt-2 border-t">
           <div className="text-sm font-medium">
-            Total: {pints.length} {pints.length === 1 ? "pint" : "pints"}
+            Total: {safePints.length} {safePints.length === 1 ? "pint" : "pints"}
           </div>
           <Button variant="outline" onClick={onClose}>
             Close
