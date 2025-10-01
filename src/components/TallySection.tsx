@@ -1,8 +1,9 @@
 import { TrendingUp } from "lucide-react";
+import { PintEntry } from "@/types/pint";
 
 interface TallySectionProps {
   members: string[];
-  pints: Record<string, number>;
+  pints: Record<string, PintEntry[]>;
 }
 
 export function TallySection({ members, pints }: TallySectionProps) {
@@ -14,10 +15,10 @@ export function TallySection({ members, pints }: TallySectionProps) {
       tallies[member] = 0;
     });
 
-    Object.entries(pints).forEach(([key, count]) => {
+    Object.entries(pints).forEach(([key, entries]) => {
       const [from] = key.split("->");
       if (tallies[from] !== undefined) {
-        tallies[from] += count;
+        tallies[from] += entries.length;
       }
     });
 

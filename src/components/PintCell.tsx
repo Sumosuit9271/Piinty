@@ -7,9 +7,10 @@ interface PintCellProps {
   count: number;
   onAddPint: (from: string, to: string) => void;
   onClearPint: (from: string, to: string) => void;
+  onViewHistory: (from: string, to: string) => void;
 }
 
-export function PintCell({ fromMember, toMember, count, onAddPint, onClearPint }: PintCellProps) {
+export function PintCell({ fromMember, toMember, count, onAddPint, onClearPint, onViewHistory }: PintCellProps) {
   // Don't show cell for same person
   if (fromMember === toMember) {
     return (
@@ -21,12 +22,20 @@ export function PintCell({ fromMember, toMember, count, onAddPint, onClearPint }
 
   return (
     <div className="p-3 bg-card rounded-lg border border-border pint-transition hover:shadow-sm min-h-[100px] flex flex-col justify-between gap-2">
-      <div className="text-center">
+      <button
+        onClick={() => onViewHistory(fromMember, toMember)}
+        className="text-center hover:bg-secondary/50 rounded p-2 pint-transition"
+      >
         <div className="text-2xl font-bold text-primary">{count || "—"}</div>
         <div className="text-xs text-muted-foreground">
           {count === 1 ? "pint" : "pints"}
         </div>
-      </div>
+        {count > 0 && (
+          <div className="text-xs text-primary/70 mt-1">
+            View history
+          </div>
+        )}
+      </button>
       
       <div className="flex gap-1.5">
         <Button

@@ -3,6 +3,8 @@ import { GroupHeader } from "@/components/GroupHeader";
 import { PintMatrix } from "@/components/PintMatrix";
 import { TallySection } from "@/components/TallySection";
 import { AddPintDialog } from "@/components/AddPintDialog";
+import { PintHistoryDialog } from "@/components/PintHistoryDialog";
+import { GroupData, PintEntry } from "@/types/pint";
 import {
   Dialog,
   DialogContent,
@@ -16,12 +18,6 @@ import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users } from "lucide-react";
 
-interface GroupData {
-  groupName: string;
-  members: string[];
-  pints: Record<string, number>;
-}
-
 const STORAGE_KEY = "pint-tracker-data";
 
 const Index = () => {
@@ -32,6 +28,12 @@ const Index = () => {
   });
 
   const [addPintDialog, setAddPintDialog] = useState<{
+    open: boolean;
+    from: string;
+    to: string;
+  }>({ open: false, from: "", to: "" });
+
+  const [historyDialog, setHistoryDialog] = useState<{
     open: boolean;
     from: string;
     to: string;
@@ -67,11 +69,16 @@ const Index = () => {
 
   const confirmAddPint = (note: string) => {
     const key = `${addPintDialog.from}->${addPintDialog.to}`;
+    const newEntry: PintEntry = {
+      note: note.trim(),
+      timestamp: Date.now(),
+    };
+
     setGroupData((prev) => ({
       ...prev,
       pints: {
         ...prev.pints,
-        [key]: (prev.pints[key] || 0) + 1,
+        [key]: [...(prev.pints[key] || []), newEntry],
       },
     }));
 
@@ -85,14 +92,15 @@ const Index = () => {
 
   const handleClearPint = (from: string, to: string) => {
     const key = `${from}->${to}`;
-    const currentCount = groupData.pints[key] || 0;
+    const currentEntries = groupData.pints[key] || [];
 
-    if (currentCount > 0) {
+    if (currentEntries.length > 0) {
+      // Remove the most recent pint
       setGroupData((prev) => ({
         ...prev,
         pints: {
           ...prev.pints,
-          [key]: currentCount - 1,
+          [key]: currentEntries.slice(0, -1),
         },
       }));
 
@@ -101,6 +109,28 @@ const Index = () => {
         description: `${from} paid back ${to}`,
       });
     }
+  };
+
+  const handleViewHistory = (from: string, to: string) => {
+    setHistoryDialog({ open: true, from, to });
+  };
+
+  const handleRemovePintFromHistory = (index: number) => {
+    const key = `${historyDialog.from}->${historyDialog.to}`;
+    const currentEntries = groupData.pints[key] || [];
+    
+    setGroupData((prev) => ({
+      ...prev,
+      pints: {
+        ...prev.pints,
+        [key]: currentEntries.filter((_, i) => i !== index),
+      },
+    }));
+
+    toast({
+      title: "Pint removed",
+      description: "Removed from history",
+    });
   };
 
   const handleAddMember = () => {
@@ -187,6 +217,7 @@ const Index = () => {
             pints={groupData.pints}
             onAddPint={handleAddPint}
             onClearPint={handleClearPint}
+            onViewHistory={handleViewHistory}
           />
         </section>
 
@@ -203,6 +234,16 @@ const Index = () => {
         fromMember={addPintDialog.from}
         toMember={addPintDialog.to}
         onConfirm={confirmAddPint}
+      />
+
+      {/* History Dialog */}
+      <PintHistoryDialog
+        open={historyDialog.open}
+        onClose={() => setHistoryDialog({ open: false, from: "", to: "" })}
+        fromMember={historyDialog.from}
+        toMember={historyDialog.to}
+        pints={groupData.pints[`${historyDialog.from}->${historyDialog.to}`] || []}
+        onRemovePint={handleRemovePintFromHistory}
       />
 
       {/* Add Member Dialog */}
