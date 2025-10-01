@@ -60,10 +60,14 @@ const Index = () => {
             migratedPints[key] = Array.from({ length: value }, () => ({
               note: "",
               timestamp: Date.now(),
+              paid: false,
             }));
           } else if (Array.isArray(value)) {
-            // New format: keep as is
-            migratedPints[key] = value;
+            // New format: ensure all entries have paid field
+            migratedPints[key] = value.map(entry => ({
+              ...entry,
+              paid: entry.paid ?? false,
+            }));
           } else {
             // Invalid format: reset to empty array
             migratedPints[key] = [];
@@ -94,6 +98,7 @@ const Index = () => {
     const newEntry: PintEntry = {
       note: note.trim(),
       timestamp: Date.now(),
+      paid: false,
     };
 
     setGroupData((prev) => ({
@@ -115,21 +120,38 @@ const Index = () => {
   const handleClearPint = (from: string, to: string) => {
     const key = `${from}->${to}`;
     const currentEntries = groupData.pints[key] || [];
+    const unpaidEntries = currentEntries.filter(e => !e.paid);
 
-    if (currentEntries.length > 0) {
-      // Remove the most recent pint
-      setGroupData((prev) => ({
-        ...prev,
-        pints: {
-          ...prev.pints,
-          [key]: currentEntries.slice(0, -1),
-        },
-      }));
+    if (unpaidEntries.length > 0) {
+      // Mark the most recent unpaid pint as paid
+      let lastUnpaidIndex = -1;
+      for (let i = currentEntries.length - 1; i >= 0; i--) {
+        if (!currentEntries[i].paid) {
+          lastUnpaidIndex = i;
+          break;
+        }
+      }
+      
+      if (lastUnpaidIndex !== -1) {
+        const updatedEntries = [...currentEntries];
+        updatedEntries[lastUnpaidIndex] = {
+          ...updatedEntries[lastUnpaidIndex],
+          paid: true,
+        };
 
-      toast({
-        title: "Pint cleared! ✓",
-        description: `${from} paid back ${to}`,
-      });
+        setGroupData((prev) => ({
+          ...prev,
+          pints: {
+            ...prev.pints,
+            [key]: updatedEntries,
+          },
+        }));
+
+        toast({
+          title: "Pint cleared! ✓",
+          description: `${from} paid back ${to}`,
+        });
+      }
     }
   };
 
@@ -137,22 +159,32 @@ const Index = () => {
     setHistoryDialog({ open: true, from, to });
   };
 
-  const handleRemovePintFromHistory = (index: number) => {
+  const handleTogglePaid = (index: number) => {
     const key = `${historyDialog.from}->${historyDialog.to}`;
     const currentEntries = groupData.pints[key] || [];
     
-    setGroupData((prev) => ({
-      ...prev,
-      pints: {
-        ...prev.pints,
-        [key]: currentEntries.filter((_, i) => i !== index),
-      },
-    }));
+    if (currentEntries[index]) {
+      const updatedEntries = [...currentEntries];
+      updatedEntries[index] = {
+        ...updatedEntries[index],
+        paid: !updatedEntries[index].paid,
+      };
 
-    toast({
-      title: "Pint removed",
-      description: "Removed from history",
-    });
+      setGroupData((prev) => ({
+        ...prev,
+        pints: {
+          ...prev.pints,
+          [key]: updatedEntries,
+        },
+      }));
+
+      toast({
+        title: updatedEntries[index].paid ? "Pint paid! ✓" : "Pint unpaid",
+        description: updatedEntries[index].paid 
+          ? `${historyDialog.from} paid back ${historyDialog.to}`
+          : `Marked as unpaid`,
+      });
+    }
   };
 
   const handleAddMember = () => {
@@ -265,7 +297,7 @@ const Index = () => {
         fromMember={historyDialog.from}
         toMember={historyDialog.to}
         pints={groupData.pints[`${historyDialog.from}->${historyDialog.to}`] || []}
-        onRemovePint={handleRemovePintFromHistory}
+        onTogglePaid={handleTogglePaid}
       />
 
       {/* Add Member Dialog */}

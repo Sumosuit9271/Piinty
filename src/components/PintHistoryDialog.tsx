@@ -7,7 +7,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PintEntry } from "@/types/pint";
-import { Beer, Calendar, X } from "lucide-react";
+import { Beer, Calendar, Circle, CheckCircle2 } from "lucide-react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface PintHistoryDialogProps {
@@ -16,7 +16,7 @@ interface PintHistoryDialogProps {
   fromMember: string;
   toMember: string;
   pints: PintEntry[];
-  onRemovePint: (index: number) => void;
+  onTogglePaid: (index: number) => void;
 }
 
 export function PintHistoryDialog({
@@ -25,7 +25,7 @@ export function PintHistoryDialog({
   fromMember,
   toMember,
   pints,
-  onRemovePint,
+  onTogglePaid,
 }: PintHistoryDialogProps) {
   const formatDate = (timestamp: number) => {
     const date = new Date(timestamp);
@@ -39,6 +39,8 @@ export function PintHistoryDialog({
 
   // Safety check: ensure pints is always an array
   const safePints = Array.isArray(pints) ? pints : [];
+  const unpaidCount = safePints.filter(p => !p.paid).length;
+  const paidCount = safePints.filter(p => p.paid).length;
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -64,11 +66,15 @@ export function PintHistoryDialog({
               {safePints.map((pint, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-3 p-3 bg-secondary/50 rounded-lg group"
+                  className={`flex items-start gap-3 p-3 rounded-lg group pint-transition ${
+                    pint.paid 
+                      ? "bg-accent/10 opacity-60" 
+                      : "bg-secondary/50"
+                  }`}
                 >
-                  <Beer className="h-4 w-4 text-primary mt-1 flex-shrink-0" />
+                  <Beer className={`h-4 w-4 mt-1 flex-shrink-0 ${pint.paid ? "text-accent" : "text-primary"}`} />
                   <div className="flex-1 min-w-0">
-                    <div className="text-sm font-medium">
+                    <div className={`text-sm font-medium ${pint.paid ? "line-through" : ""}`}>
                       {pint.note || "No reason given"}
                     </div>
                     <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
@@ -79,10 +85,15 @@ export function PintHistoryDialog({
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => onRemovePint(index)}
+                    className="h-7 w-7 hover:bg-accent/20 pint-transition"
+                    onClick={() => onTogglePaid(index)}
+                    title={pint.paid ? "Mark as unpaid" : "Mark as paid"}
                   >
-                    <X className="h-3 w-3" />
+                    {pint.paid ? (
+                      <CheckCircle2 className="h-4 w-4 text-accent" />
+                    ) : (
+                      <Circle className="h-4 w-4" />
+                    )}
                   </Button>
                 </div>
               ))}
@@ -91,8 +102,15 @@ export function PintHistoryDialog({
         )}
 
         <div className="flex justify-between items-center pt-2 border-t">
-          <div className="text-sm font-medium">
-            Total: {safePints.length} {safePints.length === 1 ? "pint" : "pints"}
+          <div className="text-sm space-y-1">
+            <div className="font-medium">
+              Unpaid: {unpaidCount} {unpaidCount === 1 ? "pint" : "pints"}
+            </div>
+            {paidCount > 0 && (
+              <div className="text-xs text-muted-foreground">
+                Paid: {paidCount}
+              </div>
+            )}
           </div>
           <Button variant="outline" onClick={onClose}>
             Close

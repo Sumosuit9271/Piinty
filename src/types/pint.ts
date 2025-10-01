@@ -1,6 +1,7 @@
 export interface PintEntry {
   note: string;
   timestamp: number;
+  paid: boolean;
 }
 
 export interface GroupData {

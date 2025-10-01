@@ -18,7 +18,7 @@ export function TallySection({ members, pints }: TallySectionProps) {
     Object.entries(pints).forEach(([key, entries]) => {
       const [from] = key.split("->");
       if (tallies[from] !== undefined) {
-        tallies[from] += entries.length;
+        tallies[from] += entries.filter(e => !e.paid).length;
       }
     });
 

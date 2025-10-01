@@ -51,7 +51,7 @@ export function PintMatrix({ members, pints, onAddPint, onClearPint, onViewHisto
             {members.map((toMember) => {
               const key = getPintKey(fromMember, toMember);
               const entries = pints[key] || [];
-              const count = entries.length;
+              const count = entries.filter(e => !e.paid).length;
 
               return (
                 <PintCell
