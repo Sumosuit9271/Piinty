@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,15 +14,23 @@ export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  
+  const inviteGroupId = searchParams.get("invite");
+  const inviteGroupName = searchParams.get("name");
 
   useEffect(() => {
     // Check if already logged in
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
-        navigate("/groups");
+        if (inviteGroupId) {
+          navigate(`/group/${inviteGroupId}`);
+        } else {
+          navigate("/groups");
+        }
       }
     });
-  }, [navigate]);
+  }, [navigate, inviteGroupId]);
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,13 +63,32 @@ export default function Auth() {
             });
 
           if (profileError) console.error("Profile creation error:", profileError);
+          
+          // Auto-join group if invited
+          if (inviteGroupId) {
+            const { error: memberError } = await supabase
+              .from("group_members")
+              .insert({
+                group_id: inviteGroupId,
+                user_id: data.user.id,
+              });
+            
+            if (memberError) console.error("Auto-join error:", memberError);
+          }
         }
 
         toast({
           title: "Account created!",
-          description: "You're now signed in",
+          description: inviteGroupId 
+            ? `Welcome! Joining ${inviteGroupName || "group"}...`
+            : "You're now signed in",
         });
-        navigate("/groups");
+        
+        if (inviteGroupId) {
+          navigate(`/group/${inviteGroupId}`);
+        } else {
+          navigate("/groups");
+        }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: `${phone}@pintpal.app`,
@@ -74,7 +101,12 @@ export default function Auth() {
           title: "Welcome back!",
           description: "You're signed in",
         });
-        navigate("/groups");
+        
+        if (inviteGroupId) {
+          navigate(`/group/${inviteGroupId}`);
+        } else {
+          navigate("/groups");
+        }
       }
     } catch (error: any) {
       toast({
@@ -96,7 +128,10 @@ export default function Auth() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Piinty</h1>
           <p className="text-muted-foreground text-center">
-            Keep track of owed pints between mates!
+            {inviteGroupName 
+              ? `Join ${inviteGroupName} to track pints together!`
+              : "Keep track of owed pints between mates!"
+            }
           </p>
         </div>
 

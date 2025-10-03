@@ -19,7 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { UserMinus, Users, ArrowLeft } from "lucide-react";
+import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
 
 interface Profile {
   id: string;
@@ -386,6 +386,30 @@ const Group = () => {
     }
   };
 
+  const handleShareInvite = () => {
+    const inviteUrl = `${window.location.origin}/auth?invite=${groupId}&name=${encodeURIComponent(groupName)}`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: `Join ${groupName} on Pintpal`,
+        text: `Join our group "${groupName}" to track pints together!`,
+        url: inviteUrl,
+      }).catch(() => {
+        copyToClipboard(inviteUrl);
+      });
+    } else {
+      copyToClipboard(inviteUrl);
+    }
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({
+      title: "Link copied!",
+      description: "Share this link with friends to invite them",
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -415,6 +439,14 @@ const Group = () => {
               setSettingsDialog(true);
             }}
           />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleShareInvite}
+            title="Share invite link"
+          >
+            <Share2 className="h-5 w-5" />
+          </Button>
         </div>
       </div>
 
