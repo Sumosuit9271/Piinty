@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -12,7 +12,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Users, LogOut, ChevronRight } from "lucide-react";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Plus, Users, LogOut, ChevronRight, Camera } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
 
@@ -28,6 +29,9 @@ export default function Groups() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string>("");
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -41,15 +45,18 @@ export default function Groups() {
       return;
     }
 
+    setUserId(session.user.id);
+
     // Load user profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, avatar_url")
       .eq("id", session.user.id)
       .single();
 
     if (profile) {
       setUserDisplayName(profile.display_name);
+      setUserAvatarUrl(profile.avatar_url);
     }
 
     loadGroups();
@@ -125,6 +132,72 @@ export default function Groups() {
     navigate("/auth");
   };
 
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: "Invalid file type",
+        description: "Please select an image file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: "File too large",
+        description: "Please select an image under 5MB",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${Date.now()}.${fileExt}`;
+      const filePath = `${userId}/${fileName}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(filePath, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(filePath);
+
+      // Update profile
+      const { error: updateError } = await supabase
+        .from('profiles')
+        .update({ avatar_url: publicUrl })
+        .eq('id', userId);
+
+      if (updateError) throw updateError;
+
+      setUserAvatarUrl(publicUrl);
+      toast({
+        title: "Picture updated!",
+        description: "Your profile picture has been updated successfully",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error uploading picture",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -140,7 +213,19 @@ export default function Groups() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
-            <div>
+            <div 
+              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+              onClick={handleAvatarClick}
+            >
+              <div className="relative">
+                <Avatar className="h-10 w-10">
+                  <AvatarImage src={userAvatarUrl || undefined} alt={userDisplayName} />
+                  <AvatarFallback>{userDisplayName.slice(0, 2).toUpperCase()}</AvatarFallback>
+                </Avatar>
+                <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
+                  <Camera className="h-3 w-3 text-primary-foreground" />
+                </div>
+              </div>
               <p className="text-sm text-muted-foreground">{userDisplayName}</p>
             </div>
           </div>
@@ -148,6 +233,13 @@ export default function Groups() {
             <LogOut className="h-5 w-5" />
           </Button>
         </div>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          className="hidden"
+          onChange={handleFileChange}
+        />
       </header>
 
       <main className="container mx-auto px-4 py-6">
