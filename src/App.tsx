@@ -7,6 +7,7 @@ import Auth from "./pages/Auth";
 import Groups from "./pages/Groups";
 import Group from "./pages/Group";
 import NotFound from "./pages/NotFound";
+import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
 
 const queryClient = new QueryClient();
 
@@ -15,6 +16,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <PWAInstallPrompt />
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Navigate to="/groups" replace />} />

@@ -1,0 +1,17 @@
+{
+  "name": "Piinty",
+  "short_name": "Piinty",
+  "description": "Keep track of pints owed between friends",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f5f1e8",
+  "theme_color": "#f59e0b",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon"
+    }
+  ]
+}
