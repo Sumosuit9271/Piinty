@@ -451,6 +451,20 @@ const Group = () => {
       </div>
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        <div className="bg-secondary/30 border border-border rounded-lg p-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            Use this link to invite friends to Piinty!
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleShareInvite}
+          >
+            <Share2 className="h-4 w-4 mr-2" />
+            Share Link
+          </Button>
+        </div>
+
         <Leaderboard members={memberNames} pints={pints} />
 
         <section>
