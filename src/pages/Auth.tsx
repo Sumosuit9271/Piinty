@@ -80,9 +80,9 @@ export default function Auth() {
           <div className="p-4 bg-primary/10 rounded-full mb-4">
             <Beer className="h-12 w-12 text-primary" />
           </div>
-          <h1 className="text-3xl font-bold mb-2">Pint Pal</h1>
+          <h1 className="text-3xl font-bold mb-2">Piinty</h1>
           <p className="text-muted-foreground text-center">
-            {isSignUp ? "Create your account" : "Welcome back"}
+            {isSignUp ? "Keep track of owed pints between mates!" : "Welcome back"}
           </p>
         </div>
 

@@ -18,7 +18,7 @@ export function GroupHeader({ groupName, onAddMember, onSettings }: GroupHeaderP
             </div>
             <div>
               <h1 className="text-2xl font-bold">{groupName}</h1>
-              <p className="text-sm text-muted-foreground">Pint Tracker</p>
+              <p className="text-sm text-muted-foreground">Keep track of owed pints between mates!</p>
             </div>
           </div>
 
