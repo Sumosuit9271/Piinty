@@ -4,8 +4,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Beer, Phone, Share, Plus, Smartphone, X } from "lucide-react";
+import { Phone, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import piintyLogo from "@/assets/piinty-logo.png";
 
 export default function Auth() {
   const [countryCode, setCountryCode] = useState("1");
@@ -127,10 +128,7 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-8">
-          <div className="p-4 bg-primary/10 rounded-full mb-4">
-            <Beer className="h-12 w-12 text-primary" />
-          </div>
-          <h1 className="text-3xl font-bold mb-2">Piinty</h1>
+          <img src={piintyLogo} alt="Piinty Logo" className="h-32 w-auto mb-4" />
           <p className="text-muted-foreground text-center">
             {inviteGroupName 
               ? `Join ${inviteGroupName} to track pints together!`

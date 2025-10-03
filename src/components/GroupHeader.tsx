@@ -1,5 +1,6 @@
-import { Beer, Settings, UserPlus } from "lucide-react";
+import { Settings, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import piintyLogo from "@/assets/piinty-logo.png";
 
 interface GroupHeaderProps {
   groupName: string;
@@ -13,9 +14,7 @@ export function GroupHeader({ groupName, onAddMember, onSettings }: GroupHeaderP
       <div className="container mx-auto px-4 py-4">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg">
-              <Beer className="h-6 w-6 text-primary" />
-            </div>
+            <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
             <div>
               <h1 className="text-2xl font-bold">{groupName}</h1>
               <p className="text-sm text-muted-foreground">Keep track of owed pints between mates!</p>
