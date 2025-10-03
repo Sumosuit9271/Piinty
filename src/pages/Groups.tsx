@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -154,13 +154,18 @@ export default function Groups() {
               variant="ghost"
               size="icon"
               onClick={() => setProfileSettingsOpen(true)}
+              className="rounded-full"
             >
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={avatarUrl || undefined} />
-                <AvatarFallback>
-                  <User className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
+              {avatarUrl ? (
+                <Avatar className="h-8 w-8">
+                  <AvatarImage src={avatarUrl} alt={userDisplayName} />
+                  <AvatarFallback>
+                    <User className="h-4 w-4" />
+                  </AvatarFallback>
+                </Avatar>
+              ) : (
+                <User className="h-5 w-5" />
+              )}
             </Button>
             <Button variant="ghost" size="icon" onClick={handleSignOut}>
               <LogOut className="h-5 w-5" />

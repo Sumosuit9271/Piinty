@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -169,7 +169,7 @@ export function ProfileSettings({ open, onOpenChange }: ProfileSettingsProps) {
             <div className="flex flex-col items-center gap-4">
               <div className="relative">
                 <Avatar className="h-24 w-24">
-                  <AvatarImage src={avatarUrl || undefined} />
+                  {avatarUrl && <AvatarImage src={avatarUrl} alt="Profile" />}
                   <AvatarFallback className="text-2xl">
                     {getInitials() || "U"}
                   </AvatarFallback>
