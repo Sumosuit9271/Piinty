@@ -164,6 +164,10 @@ export type Database = {
         Args: { group_id_param: string; user_id_param: string }
         Returns: boolean
       }
+      share_group_with_user: {
+        Args: { other_user_id_param: string; user_id_param: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
