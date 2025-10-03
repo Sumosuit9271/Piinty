@@ -66,35 +66,44 @@ export function PintHistoryDialog({
               {safePints.map((pint, index) => (
                 <div
                   key={index}
-                  className={`flex items-start gap-3 p-3 rounded-lg group pint-transition ${
+                  className={`flex flex-col gap-2 p-3 rounded-lg group pint-transition ${
                     pint.paid 
                       ? "bg-accent/10 opacity-60" 
                       : "bg-secondary/50"
                   }`}
                 >
-                  <Beer className={`h-4 w-4 mt-1 flex-shrink-0 ${pint.paid ? "text-accent" : "text-primary"}`} />
-                  <div className="flex-1 min-w-0">
-                    <div className={`text-sm font-medium ${pint.paid ? "line-through" : ""}`}>
-                      {pint.note || "No reason given"}
+                  <div className="flex items-start gap-3">
+                    <Beer className={`h-4 w-4 mt-1 flex-shrink-0 ${pint.paid ? "text-accent" : "text-primary"}`} />
+                    <div className="flex-1 min-w-0">
+                      <div className={`text-sm font-medium ${pint.paid ? "line-through" : ""}`}>
+                        {pint.note || "No reason given"}
+                      </div>
+                      <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
+                        <Calendar className="h-3 w-3" />
+                        {formatDate(pint.timestamp)}
+                      </div>
                     </div>
-                    <div className="text-xs text-muted-foreground flex items-center gap-1 mt-1">
-                      <Calendar className="h-3 w-3" />
-                      {formatDate(pint.timestamp)}
-                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-7 w-7 hover:bg-accent/20 pint-transition"
+                      onClick={() => onTogglePaid(index)}
+                      title={pint.paid ? "Mark as unpaid" : "Mark as paid"}
+                    >
+                      {pint.paid ? (
+                        <CheckCircle2 className="h-4 w-4 text-accent" />
+                      ) : (
+                        <Circle className="h-4 w-4" />
+                      )}
+                    </Button>
                   </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-7 w-7 hover:bg-accent/20 pint-transition"
-                    onClick={() => onTogglePaid(index)}
-                    title={pint.paid ? "Mark as unpaid" : "Mark as paid"}
-                  >
-                    {pint.paid ? (
-                      <CheckCircle2 className="h-4 w-4 text-accent" />
-                    ) : (
-                      <Circle className="h-4 w-4" />
-                    )}
-                  </Button>
+                  {pint.photo && (
+                    <img
+                      src={pint.photo}
+                      alt="Pint proof"
+                      className="w-full h-32 object-cover rounded"
+                    />
+                  )}
                 </div>
               ))}
             </div>

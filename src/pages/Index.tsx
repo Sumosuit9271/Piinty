@@ -93,12 +93,13 @@ const Index = () => {
     setAddPintDialog({ open: true, from, to });
   };
 
-  const confirmAddPint = (note: string) => {
+  const confirmAddPint = (note: string, photo?: string) => {
     const key = `${addPintDialog.from}->${addPintDialog.to}`;
     const newEntry: PintEntry = {
       note: note.trim(),
       timestamp: Date.now(),
       paid: false,
+      ...(photo && { photo }),
     };
 
     setGroupData((prev) => ({
