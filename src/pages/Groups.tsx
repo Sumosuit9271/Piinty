@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Dialog,
   DialogContent,
@@ -12,9 +13,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Plus, Users, LogOut, ChevronRight } from "lucide-react";
+import { Plus, Users, LogOut, ChevronRight, User } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
+import { ProfileSettings } from "@/components/ProfileSettings";
 
 interface Group {
   id: string;
@@ -28,6 +30,8 @@ export default function Groups() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [profileSettingsOpen, setProfileSettingsOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,12 +48,13 @@ export default function Groups() {
     // Load user profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, avatar_url")
       .eq("id", session.user.id)
       .single();
 
     if (profile) {
       setUserDisplayName(profile.display_name);
+      setAvatarUrl(profile.avatar_url);
     }
 
     loadGroups();
@@ -144,9 +149,23 @@ export default function Groups() {
               <p className="text-sm text-muted-foreground">{userDisplayName}</p>
             </div>
           </div>
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setProfileSettingsOpen(true)}
+            >
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={avatarUrl || undefined} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
+              </Avatar>
+            </Button>
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -201,6 +220,15 @@ export default function Groups() {
           <Plus className="h-6 w-6" />
         </Button>
       )}
+
+      {/* Profile Settings */}
+      <ProfileSettings
+        open={profileSettingsOpen}
+        onOpenChange={(open) => {
+          setProfileSettingsOpen(open);
+          if (!open) checkAuthAndLoadGroups(); // Reload to get updated avatar
+        }}
+      />
 
       {/* Create Group Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
