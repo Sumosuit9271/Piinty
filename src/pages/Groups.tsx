@@ -15,6 +15,8 @@ import {
 import { Plus, Users, LogOut, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ProfileDialog } from "@/components/ProfileDialog";
 
 interface Group {
   id: string;
@@ -28,6 +30,9 @@ export default function Groups() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
+  const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [userId, setUserId] = useState("");
+  const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -44,13 +49,15 @@ export default function Groups() {
     // Load user profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name")
+      .select("display_name, avatar_url")
       .eq("id", session.user.id)
       .single();
 
     if (profile) {
       setUserDisplayName(profile.display_name);
+      setUserAvatarUrl(profile.avatar_url);
     }
+    setUserId(session.user.id);
 
     loadGroups();
   };
@@ -140,9 +147,18 @@ export default function Groups() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
-            <div>
+            <button
+              onClick={() => setProfileDialogOpen(true)}
+              className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+            >
+              <Avatar className="h-10 w-10">
+                <AvatarImage src={userAvatarUrl || undefined} alt={userDisplayName} />
+                <AvatarFallback>
+                  {userDisplayName.charAt(0).toUpperCase()}
+                </AvatarFallback>
+              </Avatar>
               <p className="text-sm text-muted-foreground">{userDisplayName}</p>
-            </div>
+            </button>
           </div>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
             <LogOut className="h-5 w-5" />
@@ -241,6 +257,16 @@ export default function Groups() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Profile Dialog */}
+      <ProfileDialog
+        open={profileDialogOpen}
+        onClose={() => setProfileDialogOpen(false)}
+        userId={userId}
+        displayName={userDisplayName}
+        avatarUrl={userAvatarUrl}
+        onUpdate={checkAuthAndLoadGroups}
+      />
     </div>
   );
 }
