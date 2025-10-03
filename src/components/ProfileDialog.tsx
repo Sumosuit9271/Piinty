@@ -16,6 +16,7 @@ interface ProfileDialogProps {
   open: boolean;
   onClose: () => void;
   userId: string;
+  phoneNumber: string;
   displayName: string;
   avatarUrl: string | null;
   onUpdate: () => void;
@@ -25,6 +26,7 @@ export function ProfileDialog({
   open,
   onClose,
   userId,
+  phoneNumber,
   displayName,
   avatarUrl,
   onUpdate,
@@ -63,14 +65,14 @@ export function ProfileDialog({
       if (avatarUrl) {
         const oldPath = avatarUrl.split("/").pop();
         if (oldPath) {
-          await supabase.storage.from("avatars").remove([`${userId}/${oldPath}`]);
+          await supabase.storage.from("avatars").remove([`${phoneNumber}/${oldPath}`]);
         }
       }
 
       // Upload new avatar
       const fileExt = file.name.split(".").pop();
       const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `${userId}/${fileName}`;
+      const filePath = `${phoneNumber}/${fileName}`;
 
       const { error: uploadError } = await supabase.storage
         .from("avatars")

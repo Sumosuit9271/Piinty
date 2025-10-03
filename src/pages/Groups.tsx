@@ -31,6 +31,7 @@ export default function Groups() {
   const [newGroupName, setNewGroupName] = useState("");
   const [userDisplayName, setUserDisplayName] = useState("");
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
+  const [userPhoneNumber, setUserPhoneNumber] = useState("");
   const [userId, setUserId] = useState("");
   const [profileDialogOpen, setProfileDialogOpen] = useState(false);
   const navigate = useNavigate();
@@ -49,13 +50,14 @@ export default function Groups() {
     // Load user profile
     const { data: profile } = await supabase
       .from("profiles")
-      .select("display_name, avatar_url")
+      .select("display_name, avatar_url, phone_number")
       .eq("id", session.user.id)
       .single();
 
     if (profile) {
       setUserDisplayName(profile.display_name);
       setUserAvatarUrl(profile.avatar_url);
+      setUserPhoneNumber(profile.phone_number);
     }
     setUserId(session.user.id);
 
@@ -263,6 +265,7 @@ export default function Groups() {
         open={profileDialogOpen}
         onClose={() => setProfileDialogOpen(false)}
         userId={userId}
+        phoneNumber={userPhoneNumber}
         displayName={userDisplayName}
         avatarUrl={userAvatarUrl}
         onUpdate={checkAuthAndLoadGroups}
