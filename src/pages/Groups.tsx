@@ -12,8 +12,9 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Beer, Plus, Users, LogOut, ChevronRight } from "lucide-react";
+import { Plus, Users, LogOut, ChevronRight } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
+import piintyLogo from "@/assets/piinty-logo.png";
 
 interface Group {
   id: string;
@@ -138,9 +139,8 @@ export default function Groups() {
       <header className="sticky top-0 z-10 bg-background border-b">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <Beer className="h-6 w-6 text-primary" />
+            <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
             <div>
-              <h1 className="text-xl font-bold">Piinty</h1>
               <p className="text-sm text-muted-foreground">{userDisplayName}</p>
             </div>
           </div>
