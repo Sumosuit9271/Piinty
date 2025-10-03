@@ -4,6 +4,7 @@ import { PintMatrix } from "@/components/PintMatrix";
 import { TallySection } from "@/components/TallySection";
 import { AddPintDialog } from "@/components/AddPintDialog";
 import { PintHistoryDialog } from "@/components/PintHistoryDialog";
+import { Leaderboard } from "@/components/Leaderboard";
 import { GroupData, PintEntry } from "@/types/pint";
 import {
   Dialog,
@@ -259,6 +260,9 @@ const Index = () => {
       />
 
       <main className="container mx-auto px-4 py-8 space-y-8">
+        {/* Leaderboard Section */}
+        <Leaderboard members={groupData.members} pints={groupData.pints} />
+
         {/* Matrix Section */}
         <section>
           <div className="mb-4">
