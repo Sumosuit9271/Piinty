@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Beer, Phone, Share, Plus, Smartphone } from "lucide-react";
+import { Beer, Phone, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Auth() {
@@ -14,6 +14,7 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showPWAGuide, setShowPWAGuide] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   
@@ -212,18 +213,28 @@ export default function Auth() {
         </div>
       </Card>
 
-      <Card className="w-full max-w-md p-6 mt-4 bg-primary/5 border-primary/20">
-        <div className="flex items-start gap-3 mb-4">
-          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
-            <Smartphone className="h-5 w-5 text-primary" />
+      {showPWAGuide && (
+        <Card className="w-full max-w-md p-6 mt-4 bg-primary/5 border-primary/20 relative">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="absolute top-2 right-2 h-8 w-8"
+            onClick={() => setShowPWAGuide(false)}
+          >
+            <X className="h-4 w-4" />
+          </Button>
+          
+          <div className="flex items-start gap-3 mb-4 pr-8">
+            <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+              <Smartphone className="h-5 w-5 text-primary" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-base mb-1">Add Piinty to Home Screen</h3>
+              <p className="text-xs text-muted-foreground">
+                Install as an app for quick access!
+              </p>
+            </div>
           </div>
-          <div>
-            <h3 className="font-semibold text-base mb-1">Add Piinty to Home Screen</h3>
-            <p className="text-xs text-muted-foreground">
-              Install as an app for quick access!
-            </p>
-          </div>
-        </div>
 
         <div className="space-y-3">
           <div className="flex items-start gap-3">
@@ -260,6 +271,7 @@ export default function Auth() {
           </div>
         </div>
       </Card>
+      )}
     </div>
   );
 }
