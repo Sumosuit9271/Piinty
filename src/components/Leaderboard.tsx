@@ -96,7 +96,7 @@ export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps)
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-bold text-destructive mb-1">
-                Debtling
+                Roundling
               </h3>
               <p className="text-sm text-muted-foreground mb-2">
                 Most pints they owe
