@@ -4,12 +4,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Beer, Phone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Auth() {
-  const [countryCode, setCountryCode] = useState("+1");
+  const [countryCode, setCountryCode] = useState("1");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -39,7 +38,7 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const fullPhone = `${countryCode}${phone}`;
+      const fullPhone = `+${countryCode}${phone}`;
       
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
@@ -161,18 +160,17 @@ export default function Auth() {
               Phone Number
             </label>
             <div className="flex gap-2">
-              <Select value={countryCode} onValueChange={setCountryCode}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="+1">+1 (US/CA)</SelectItem>
-                  <SelectItem value="+44">+44 (UK)</SelectItem>
-                  <SelectItem value="+353">+353 (IE)</SelectItem>
-                  <SelectItem value="+61">+61 (AU)</SelectItem>
-                  <SelectItem value="+64">+64 (NZ)</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex items-center bg-secondary rounded-md px-3 w-[80px]">
+                <span className="text-muted-foreground text-sm mr-1">+</span>
+                <Input
+                  type="text"
+                  value={countryCode}
+                  onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
+                  className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
+                  placeholder="1"
+                  maxLength={3}
+                />
+              </div>
               <Input
                 id="phone"
                 placeholder="7123456789"
