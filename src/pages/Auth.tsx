@@ -30,18 +30,32 @@ export default function Auth() {
 
     try {
       if (isSignUp) {
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email: `${phone}@pintpal.app`,
           password,
           options: {
             data: {
               display_name: displayName || phone,
+              phone_number: phone,
             },
             emailRedirectTo: `${window.location.origin}/groups`,
           },
         });
 
         if (error) throw error;
+
+        // Manually create profile to ensure it exists
+        if (data.user) {
+          const { error: profileError } = await supabase
+            .from("profiles")
+            .upsert({
+              id: data.user.id,
+              phone_number: phone,
+              display_name: displayName || phone,
+            });
+
+          if (profileError) console.error("Profile creation error:", profileError);
+        }
 
         toast({
           title: "Account created!",
