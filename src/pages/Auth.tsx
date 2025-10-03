@@ -4,10 +4,12 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Beer, Phone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Auth() {
+  const [countryCode, setCountryCode] = useState("+1");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -37,14 +39,16 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      const fullPhone = `${countryCode}${phone}`;
+      
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
-          email: `${phone}@pintpal.app`,
+          email: `${fullPhone}@pintpal.app`,
           password,
           options: {
             data: {
-              display_name: displayName || phone,
-              phone_number: phone,
+              display_name: displayName || fullPhone,
+              phone_number: fullPhone,
             },
             emailRedirectTo: `${window.location.origin}/groups`,
           },
@@ -58,8 +62,8 @@ export default function Auth() {
             .from("profiles")
             .upsert({
               id: data.user.id,
-              phone_number: phone,
-              display_name: displayName || phone,
+              phone_number: fullPhone,
+              display_name: displayName || fullPhone,
             });
 
           if (profileError) console.error("Profile creation error:", profileError);
@@ -91,7 +95,7 @@ export default function Auth() {
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email: `${phone}@pintpal.app`,
+          email: `${fullPhone}@pintpal.app`,
           password,
         });
 
@@ -156,13 +160,27 @@ export default function Auth() {
               <Phone className="h-4 w-4" />
               Phone Number
             </label>
-            <Input
-              id="phone"
-              placeholder="e.g., 07123456789"
-              value={phone}
-              onChange={(e) => setPhone(e.target.value)}
-              required
-            />
+            <div className="flex gap-2">
+              <Select value={countryCode} onValueChange={setCountryCode}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="+1">+1 (US/CA)</SelectItem>
+                  <SelectItem value="+44">+44 (UK)</SelectItem>
+                  <SelectItem value="+353">+353 (IE)</SelectItem>
+                  <SelectItem value="+61">+61 (AU)</SelectItem>
+                  <SelectItem value="+64">+64 (NZ)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                id="phone"
+                placeholder="7123456789"
+                value={phone}
+                onChange={(e) => setPhone(e.target.value)}
+                required
+              />
+            </div>
           </div>
 
           <div className="space-y-2">

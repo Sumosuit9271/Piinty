@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
 
@@ -47,6 +48,7 @@ const Group = () => {
   }>({ open: false, from: "", to: "" });
 
   const [addMemberDialog, setAddMemberDialog] = useState(false);
+  const [newMemberCountryCode, setNewMemberCountryCode] = useState("+1");
   const [newMemberPhone, setNewMemberPhone] = useState("");
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
@@ -268,12 +270,14 @@ const Group = () => {
     const trimmed = newMemberPhone.trim();
     if (!trimmed || !groupId) return;
 
+    const fullPhone = `${newMemberCountryCode}${trimmed}`;
+
     try {
       // Find user by phone
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("id, display_name")
-        .eq("phone_number", trimmed)
+        .eq("phone_number", fullPhone)
         .single();
 
       if (profileError) {
@@ -521,15 +525,29 @@ const Group = () => {
             <label htmlFor="member-phone" className="text-sm font-medium">
               Phone Number
             </label>
-            <Input
-              id="member-phone"
-              placeholder="e.g., 07123456789"
-              value={newMemberPhone}
-              onChange={(e) => setNewMemberPhone(e.target.value)}
-              onKeyDown={(e) => {
-                if (e.key === "Enter") handleAddMember();
-              }}
-            />
+            <div className="flex gap-2">
+              <Select value={newMemberCountryCode} onValueChange={setNewMemberCountryCode}>
+                <SelectTrigger className="w-[120px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="+1">+1 (US/CA)</SelectItem>
+                  <SelectItem value="+44">+44 (UK)</SelectItem>
+                  <SelectItem value="+353">+353 (IE)</SelectItem>
+                  <SelectItem value="+61">+61 (AU)</SelectItem>
+                  <SelectItem value="+64">+64 (NZ)</SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                id="member-phone"
+                placeholder="7123456789"
+                value={newMemberPhone}
+                onChange={(e) => setNewMemberPhone(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") handleAddMember();
+                }}
+              />
+            </div>
           </div>
 
           <DialogFooter className="gap-2">
