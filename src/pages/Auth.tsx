@@ -128,7 +128,7 @@ export default function Auth() {
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
       <Card className="w-full max-w-md p-8">
         <div className="flex flex-col items-center mb-8">
-          <img src={piintyLogo} alt="Piinty Logo" className="h-32 w-auto mb-4" />
+          <img src={piintyLogo} alt="Piinty Logo" className="h-40 w-auto mb-4" />
           <p className="text-muted-foreground text-center">
             {inviteGroupName 
               ? `Join ${inviteGroupName} to track pints together!`
