@@ -70,7 +70,7 @@ export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps)
               </Avatar>
             </div>
             <div className="flex-1">
-              <h3 className="text-lg font-bold text-primary mb-1">The King</h3>
+              <h3 className="text-lg font-bold text-primary mb-1">Pint Pappy</h3>
               <p className="text-sm text-muted-foreground mb-2">
                 Most pints owed to them
               </p>
@@ -96,7 +96,7 @@ export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps)
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-bold text-destructive mb-1">
-                The Clown
+                Debtling
               </h3>
               <p className="text-sm text-muted-foreground mb-2">
                 Most pints they owe
