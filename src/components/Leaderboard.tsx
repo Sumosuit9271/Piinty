@@ -1,13 +1,15 @@
 import { PintEntry } from "@/types/pint";
 import { Crown, CircleSlash } from "lucide-react";
 import { Card } from "@/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface LeaderboardProps {
   members: string[];
+  memberAvatars: Record<string, string | null>;
   pints: Record<string, PintEntry[]>;
 }
 
-export function Leaderboard({ members, pints }: LeaderboardProps) {
+export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps) {
   // Calculate stats for each member
   const memberStats = members.map((member) => {
     let owedTo = 0; // Pints this member is owed (receiving)
@@ -58,8 +60,14 @@ export function Leaderboard({ members, pints }: LeaderboardProps) {
         {/* The King */}
         <Card className="p-6 bg-gradient-to-br from-primary/10 to-primary/5 border-primary/20">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-primary/20 rounded-full">
-              <Crown className="h-6 w-6 text-primary" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-3 bg-primary/20 rounded-full">
+                <Crown className="h-6 w-6 text-primary" />
+              </div>
+              <Avatar className="h-16 w-16 border-2 border-primary">
+                <AvatarImage src={memberAvatars[king.member] || undefined} alt={king.member} />
+                <AvatarFallback>{king.member.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-bold text-primary mb-1">The King</h3>
@@ -77,8 +85,14 @@ export function Leaderboard({ members, pints }: LeaderboardProps) {
         {/* The Clown */}
         <Card className="p-6 bg-gradient-to-br from-destructive/10 to-destructive/5 border-destructive/20">
           <div className="flex items-start gap-4">
-            <div className="p-3 bg-destructive/20 rounded-full">
-              <CircleSlash className="h-6 w-6 text-destructive" />
+            <div className="flex flex-col items-center gap-2">
+              <div className="p-3 bg-destructive/20 rounded-full">
+                <CircleSlash className="h-6 w-6 text-destructive" />
+              </div>
+              <Avatar className="h-16 w-16 border-2 border-destructive">
+                <AvatarImage src={memberAvatars[clown.member] || undefined} alt={clown.member} />
+                <AvatarFallback>{clown.member.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
             </div>
             <div className="flex-1">
               <h3 className="text-lg font-bold text-destructive mb-1">

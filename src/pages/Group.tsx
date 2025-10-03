@@ -478,7 +478,7 @@ const Group = () => {
           </Button>
         </div>
 
-        <Leaderboard members={memberNames} pints={pints} />
+        <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={pints} />
 
         <section>
           <div className="mb-4">
