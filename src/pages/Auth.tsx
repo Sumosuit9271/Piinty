@@ -82,7 +82,7 @@ export default function Auth() {
           </div>
           <h1 className="text-3xl font-bold mb-2">Piinty</h1>
           <p className="text-muted-foreground text-center">
-            {isSignUp ? "Keep track of owed pints between mates!" : "Welcome back"}
+            Keep track of owed pints between mates!
           </p>
         </div>
 
