@@ -28,15 +28,15 @@ export function PintMatrix({ members, memberAvatars, pints, onAddPint, onClearPi
           {members.map((member) => (
             <div
               key={member}
-              className="p-3 flex flex-col items-center justify-center gap-2 font-semibold text-sm bg-secondary rounded-lg"
+              className="p-3 flex flex-col items-center justify-center gap-2 font-semibold bg-secondary rounded-lg"
             >
-              <Avatar className="h-8 w-8">
+              <Avatar className="h-12 w-12">
                 <AvatarImage src={memberAvatars[member] || undefined} alt={member} />
-                <AvatarFallback className="text-xs">{member.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="text-sm">{member.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <div>{member}</div>
-                <div className="text-xs font-normal text-muted-foreground mt-0.5">is owed</div>
+                <div className="text-xs">{member}</div>
+                <div className="text-[10px] font-normal text-muted-foreground mt-0.5">is owed</div>
               </div>
             </div>
           ))}
@@ -50,14 +50,14 @@ export function PintMatrix({ members, memberAvatars, pints, onAddPint, onClearPi
             style={{ gridTemplateColumns: `120px repeat(${members.length}, minmax(140px, 1fr))` }}
           >
             {/* Row label (givers) */}
-            <div className="p-3 flex flex-col items-center justify-center gap-2 font-semibold text-sm bg-secondary rounded-lg">
-              <Avatar className="h-8 w-8">
+            <div className="p-3 flex flex-col items-center justify-center gap-2 font-semibold bg-secondary rounded-lg">
+              <Avatar className="h-12 w-12">
                 <AvatarImage src={memberAvatars[fromMember] || undefined} alt={fromMember} />
-                <AvatarFallback className="text-xs">{fromMember.slice(0, 2).toUpperCase()}</AvatarFallback>
+                <AvatarFallback className="text-sm">{fromMember.slice(0, 2).toUpperCase()}</AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <div>{fromMember}</div>
-                <div className="text-xs font-normal text-muted-foreground mt-0.5">owes</div>
+                <div className="text-xs">{fromMember}</div>
+                <div className="text-[10px] font-normal text-muted-foreground mt-0.5">owes</div>
               </div>
             </div>
 
