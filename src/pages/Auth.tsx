@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Beer, Phone } from "lucide-react";
+import { Beer, Phone, Share, Plus, Smartphone } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 export default function Auth() {
@@ -209,6 +209,55 @@ export default function Auth() {
           >
             {isSignUp ? "Already have an account? Sign in" : "Don't have an account? Sign up"}
           </button>
+        </div>
+      </Card>
+
+      <Card className="w-full max-w-md p-6 mt-4 bg-primary/5 border-primary/20">
+        <div className="flex items-start gap-3 mb-4">
+          <div className="p-2 rounded-lg bg-primary/10 flex-shrink-0">
+            <Smartphone className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-base mb-1">Add Piinty to Home Screen</h3>
+            <p className="text-xs text-muted-foreground">
+              Install as an app for quick access!
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-3">
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
+              1
+            </div>
+            <div className="flex items-center gap-2 text-sm flex-1">
+              <span>Tap the Share button</span>
+              <Share className="h-4 w-4 text-primary flex-shrink-0" />
+              <span className="text-xs text-muted-foreground">(Safari toolbar)</span>
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
+              2
+            </div>
+            <div className="flex items-center gap-2 text-sm flex-1">
+              <span>Scroll and tap</span>
+              <span className="font-semibold">"Add to Home Screen"</span>
+              <Plus className="h-4 w-4 text-primary flex-shrink-0" />
+            </div>
+          </div>
+
+          <div className="flex items-start gap-3">
+            <div className="flex-shrink-0 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-xs font-semibold">
+              3
+            </div>
+            <div className="text-sm">
+              <span>Tap</span>
+              <span className="font-semibold ml-1">"Add"</span>
+              <span className="ml-1 text-xs text-muted-foreground">in the top-right</span>
+            </div>
+          </div>
         </div>
       </Card>
     </div>
