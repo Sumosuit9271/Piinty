@@ -52,18 +52,21 @@ export type Database = {
       }
       groups: {
         Row: {
+          avatar_url: string | null
           created_at: string
           created_by: string
           id: string
           name: string
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
           created_by: string
           id?: string
           name: string
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
           created_by?: string
           id?: string

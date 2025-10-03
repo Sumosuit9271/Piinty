@@ -24,12 +24,14 @@ import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
 interface Profile {
   id: string;
   display_name: string;
+  avatar_url?: string | null;
 }
 
 const Group = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
   const [groupName, setGroupName] = useState("");
+  const [groupAvatarUrl, setGroupAvatarUrl] = useState<string | null>(null);
   const [members, setMembers] = useState<Profile[]>([]);
   const [pints, setPints] = useState<Record<string, PintEntry[]>>({});
   const [loading, setLoading] = useState(true);
@@ -73,17 +75,18 @@ const Group = () => {
       // Load group info
       const { data: group, error: groupError } = await supabase
         .from("groups")
-        .select("name")
+        .select("name, avatar_url")
         .eq("id", groupId)
         .single();
 
       if (groupError) throw groupError;
       setGroupName(group.name);
+      setGroupAvatarUrl(group.avatar_url);
 
       // Load group members
       const { data: membersData, error: membersError } = await supabase
         .from("group_members")
-        .select("profiles(id, display_name)")
+        .select("profiles(id, display_name, avatar_url)")
         .eq("group_id", groupId);
 
       if (membersError) throw membersError;
@@ -422,6 +425,10 @@ const Group = () => {
   }
 
   const memberNames = members.map(m => m.display_name);
+  const memberAvatars = members.reduce((acc, m) => {
+    acc[m.display_name] = m.avatar_url || null;
+    return acc;
+  }, {} as Record<string, string | null>);
 
   return (
     <div className="min-h-screen bg-background">
@@ -436,11 +443,14 @@ const Group = () => {
           </Button>
           <GroupHeader
             groupName={groupName}
+            groupAvatarUrl={groupAvatarUrl}
+            groupId={groupId || ""}
             onAddMember={() => setAddMemberDialog(true)}
             onSettings={() => {
               setNewGroupName(groupName);
               setSettingsDialog(true);
             }}
+            onAvatarUpdate={(url) => setGroupAvatarUrl(url)}
           />
           <Button
             variant="ghost"
@@ -479,6 +489,7 @@ const Group = () => {
           </div>
           <PintMatrix
             members={memberNames}
+            memberAvatars={memberAvatars}
             pints={pints}
             onAddPint={handleAddPint}
             onClearPint={handleClearPint}

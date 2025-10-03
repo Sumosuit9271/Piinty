@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Users, LogOut, ChevronRight, Camera } from "lucide-react";
+import { Plus, Users, LogOut, ChevronRight, Camera, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
 
@@ -198,6 +198,29 @@ export default function Groups() {
     }
   };
 
+  const handleRemoveAvatar = async () => {
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ avatar_url: null })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      setUserAvatarUrl(null);
+      toast({
+        title: "Picture removed",
+        description: "Your profile picture has been removed",
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error removing picture",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -213,11 +236,11 @@ export default function Groups() {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
-            <div 
-              className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleAvatarClick}
-            >
-              <div className="relative">
+            <div className="flex items-center gap-2">
+              <div 
+                className="relative cursor-pointer hover:opacity-80 transition-opacity"
+                onClick={handleAvatarClick}
+              >
                 <Avatar className="h-10 w-10">
                   <AvatarImage src={userAvatarUrl || undefined} alt={userDisplayName} />
                   <AvatarFallback>{userDisplayName.slice(0, 2).toUpperCase()}</AvatarFallback>
@@ -226,7 +249,17 @@ export default function Groups() {
                   <Camera className="h-3 w-3 text-primary-foreground" />
                 </div>
               </div>
-              <p className="text-sm text-muted-foreground">{userDisplayName}</p>
+              <div>
+                <p className="text-sm text-muted-foreground">{userDisplayName}</p>
+                {userAvatarUrl && (
+                  <button
+                    onClick={handleRemoveAvatar}
+                    className="text-xs text-destructive hover:underline"
+                  >
+                    Remove picture
+                  </button>
+                )}
+              </div>
             </div>
           </div>
           <Button variant="ghost" size="icon" onClick={handleSignOut}>

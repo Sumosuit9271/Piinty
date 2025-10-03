@@ -1,15 +1,17 @@
 import { PintCell } from "./PintCell";
 import { PintEntry } from "@/types/pint";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 
 interface PintMatrixProps {
   members: string[];
+  memberAvatars: Record<string, string | null>;
   pints: Record<string, PintEntry[]>;
   onAddPint: (from: string, to: string) => void;
   onClearPint: (from: string, to: string) => void;
   onViewHistory: (from: string, to: string) => void;
 }
 
-export function PintMatrix({ members, pints, onAddPint, onClearPint, onViewHistory }: PintMatrixProps) {
+export function PintMatrix({ members, memberAvatars, pints, onAddPint, onClearPint, onViewHistory }: PintMatrixProps) {
   const getPintKey = (from: string, to: string) => `${from}->${to}`;
 
   return (
@@ -26,10 +28,16 @@ export function PintMatrix({ members, pints, onAddPint, onClearPint, onViewHisto
           {members.map((member) => (
             <div
               key={member}
-              className="p-3 text-center font-semibold text-sm bg-secondary rounded-lg"
+              className="p-3 flex flex-col items-center justify-center gap-2 font-semibold text-sm bg-secondary rounded-lg"
             >
-              <div>{member}</div>
-              <div className="text-xs font-normal text-muted-foreground mt-0.5">is owed</div>
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={memberAvatars[member] || undefined} alt={member} />
+                <AvatarFallback className="text-xs">{member.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <div>{member}</div>
+                <div className="text-xs font-normal text-muted-foreground mt-0.5">is owed</div>
+              </div>
             </div>
           ))}
         </div>
@@ -42,9 +50,15 @@ export function PintMatrix({ members, pints, onAddPint, onClearPint, onViewHisto
             style={{ gridTemplateColumns: `120px repeat(${members.length}, minmax(140px, 1fr))` }}
           >
             {/* Row label (givers) */}
-            <div className="p-3 flex flex-col items-center justify-center font-semibold text-sm bg-secondary rounded-lg">
-              <div>{fromMember}</div>
-              <div className="text-xs font-normal text-muted-foreground mt-0.5">owes</div>
+            <div className="p-3 flex flex-col items-center justify-center gap-2 font-semibold text-sm bg-secondary rounded-lg">
+              <Avatar className="h-8 w-8">
+                <AvatarImage src={memberAvatars[fromMember] || undefined} alt={fromMember} />
+                <AvatarFallback className="text-xs">{fromMember.slice(0, 2).toUpperCase()}</AvatarFallback>
+              </Avatar>
+              <div className="text-center">
+                <div>{fromMember}</div>
+                <div className="text-xs font-normal text-muted-foreground mt-0.5">owes</div>
+              </div>
             </div>
 
             {/* Cells */}
