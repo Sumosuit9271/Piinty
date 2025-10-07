@@ -5,13 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
-import { Phone, Share, Plus, Smartphone, X } from "lucide-react";
+import { Mail, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
 
 export default function Auth() {
-  const [countryCode, setCountryCode] = useState("1");
-  const [phone, setPhone] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [displayName, setDisplayName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
@@ -52,16 +51,13 @@ export default function Auth() {
     setLoading(true);
 
     try {
-      const fullPhone = `+${countryCode}${phone}`;
-      
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
-          email: `${fullPhone}@pintpal.app`,
+          email,
           password,
           options: {
             data: {
-              display_name: displayName || fullPhone,
-              phone_number: fullPhone,
+              display_name: displayName || email.split('@')[0],
             },
             emailRedirectTo: `${window.location.origin}/groups`,
           },
@@ -75,8 +71,8 @@ export default function Auth() {
             .from("profiles")
             .upsert({
               id: data.user.id,
-              phone_number: fullPhone,
-              display_name: displayName || fullPhone,
+              phone_number: email,
+              display_name: displayName || email.split('@')[0],
             });
 
           if (profileError) console.error("Profile creation error:", profileError);
@@ -108,7 +104,7 @@ export default function Auth() {
         }
       } else {
         const { error } = await supabase.auth.signInWithPassword({
-          email: `${fullPhone}@pintpal.app`,
+          email,
           password,
         });
 
@@ -176,30 +172,18 @@ export default function Auth() {
           )}
 
           <div className="space-y-2">
-            <label htmlFor="phone" className="text-sm font-medium flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              Phone Number
+            <label htmlFor="email" className="text-sm font-medium flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              Email
             </label>
-            <div className="flex gap-2">
-              <div className="flex items-center bg-secondary rounded-md px-3 w-[80px]">
-                <span className="text-muted-foreground text-sm mr-1">+</span>
-                <Input
-                  type="text"
-                  value={countryCode}
-                  onChange={(e) => setCountryCode(e.target.value.replace(/\D/g, ''))}
-                  className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
-                  placeholder="1"
-                  maxLength={3}
-                />
-              </div>
-              <Input
-                id="phone"
-                placeholder="7123456789"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                required
-              />
-            </div>
+            <Input
+              id="email"
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
           </div>
 
           <div className="space-y-2">
