@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Phone, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
@@ -15,6 +16,7 @@ export default function Auth() {
   const [displayName, setDisplayName] = useState("");
   const [isSignUp, setIsSignUp] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [rememberMe, setRememberMe] = useState(true);
   const [showPWAGuide, setShowPWAGuide] = useState(true);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -33,6 +35,16 @@ export default function Auth() {
         }
       }
     });
+
+    // Set up auto-logout on browser close if flag is set
+    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
+    if (shouldAutoLogout) {
+      const handleBeforeUnload = async () => {
+        await supabase.auth.signOut();
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
   }, [navigate, inviteGroupId]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -101,6 +113,16 @@ export default function Auth() {
         });
 
         if (error) throw error;
+
+        // If "Remember me" is unchecked, set up auto-logout on browser close
+        if (!rememberMe) {
+          sessionStorage.setItem("autoLogout", "true");
+          window.addEventListener("beforeunload", async () => {
+            await supabase.auth.signOut();
+          });
+        } else {
+          sessionStorage.removeItem("autoLogout");
+        }
 
         toast({
           title: "Welcome back!",
@@ -194,6 +216,22 @@ export default function Auth() {
               minLength={6}
             />
           </div>
+
+          {!isSignUp && (
+            <div className="flex items-center space-x-2">
+              <Checkbox
+                id="rememberMe"
+                checked={rememberMe}
+                onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+              />
+              <label
+                htmlFor="rememberMe"
+                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+              >
+                Remember me
+              </label>
+            </div>
+          )}
 
           <Button type="submit" className="w-full" disabled={loading}>
             {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}

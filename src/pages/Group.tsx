@@ -58,6 +58,18 @@ const Group = () => {
     checkAuthAndLoadGroup();
   }, [groupId]);
 
+  useEffect(() => {
+    // Set up auto-logout on browser close if "Remember me" was unchecked
+    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
+    if (shouldAutoLogout) {
+      const handleBeforeUnload = async () => {
+        await supabase.auth.signOut();
+      };
+      window.addEventListener("beforeunload", handleBeforeUnload);
+      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+    }
+  }, []);
+
   const checkAuthAndLoadGroup = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
