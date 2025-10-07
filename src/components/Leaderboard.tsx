@@ -12,22 +12,27 @@ interface LeaderboardProps {
 export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps) {
   // Calculate stats for each member
   const memberStats = members.map((member) => {
-    let owedTo = 0; // Pints this member is owed (receiving)
-    let owes = 0; // Pints this member owes (giving)
+    let owedTo = 0; // Pints this member is owed (receiving) - unpaid
+    let owes = 0; // Pints this member owes (giving) - unpaid
+    let totalOwedTo = 0; // Total pints ever owed to this member
+    let totalOwes = 0; // Total pints this member has ever owed
 
     Object.entries(pints).forEach(([key, entries]) => {
       const [from, to] = key.split("->");
       const unpaidCount = entries.filter((e) => !e.paid).length;
+      const totalCount = entries.length;
 
       if (to === member) {
         owedTo += unpaidCount;
+        totalOwedTo += totalCount;
       }
       if (from === member) {
         owes += unpaidCount;
+        totalOwes += totalCount;
       }
     });
 
-    return { member, owedTo, owes };
+    return { member, owedTo, owes, totalOwedTo, totalOwes };
   });
 
   // Find the king (most pints owed TO them)
@@ -76,7 +81,10 @@ export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps)
               </p>
               <div className="text-2xl font-bold">{king.member}</div>
               <div className="text-sm text-muted-foreground mt-1">
-                {king.owedTo} {king.owedTo === 1 ? "pint" : "pints"}
+                {king.owedTo} {king.owedTo === 1 ? "pint" : "pints"} outstanding
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {king.totalOwedTo} total ever owed
               </div>
             </div>
           </div>
@@ -103,7 +111,10 @@ export function Leaderboard({ members, memberAvatars, pints }: LeaderboardProps)
               </p>
               <div className="text-2xl font-bold">{clown.member}</div>
               <div className="text-sm text-muted-foreground mt-1">
-                {clown.owes} {clown.owes === 1 ? "pint" : "pints"}
+                {clown.owes} {clown.owes === 1 ? "pint" : "pints"} outstanding
+              </div>
+              <div className="text-xs text-muted-foreground">
+                {clown.totalOwes} total ever owed
               </div>
             </div>
           </div>
