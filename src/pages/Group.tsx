@@ -210,6 +210,22 @@ const Group = () => {
   };
 
   const handleClearPint = async (from: string, to: string) => {
+    if (isDemoPair(from, to)) {
+      const key = `${from}->${to}`;
+      setDemoPints((prev) => {
+        const list = [...(prev[key] || [])];
+        for (let i = list.length - 1; i >= 0; i--) {
+          if (!list[i].paid) {
+            list[i] = { ...list[i], paid: true };
+            break;
+          }
+        }
+        return { ...prev, [key]: list };
+      });
+      toast({ title: "Pint cleared! ✓", description: `${from} paid back ${to}` });
+      return;
+    }
+
     try {
       const fromUser = members.find(m => m.display_name === from);
       const toUser = members.find(m => m.display_name === to);
