@@ -274,10 +274,21 @@ const Group = () => {
   };
 
   const handleTogglePaid = async (index: number) => {
+    if (isDemoPair(historyDialog.from, historyDialog.to)) {
+      const key = `${historyDialog.from}->${historyDialog.to}`;
+      setDemoPints((prev) => {
+        const list = [...(prev[key] || [])];
+        if (list[index]) list[index] = { ...list[index], paid: !list[index].paid };
+        return { ...prev, [key]: list };
+      });
+      return;
+    }
+
     try {
       const key = `${historyDialog.from}->${historyDialog.to}`;
       const entry = pints[key]?.[index];
       if (!entry) return;
+
 
       const fromUser = members.find(m => m.display_name === historyDialog.from);
       const toUser = members.find(m => m.display_name === historyDialog.to);
