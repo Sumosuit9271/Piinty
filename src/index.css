@@ -4,60 +4,61 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Piinty design system — dark-first "stout & amber" scoreboard.
+/* Piinty design system — light "cream & amber" scoreboard.
 All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Stout base */
-    --background: 24 22% 7%;
-    --foreground: 40 35% 96%;
+    /* Cream base */
+    --background: 42 60% 97%;
+    --foreground: 26 30% 14%;
 
-    --card: 24 18% 11%;
-    --card-foreground: 40 35% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 26 30% 14%;
 
-    --popover: 24 18% 11%;
-    --popover-foreground: 40 35% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 26 30% 14%;
 
     /* Pint amber */
-    --primary: 38 96% 56%;
-    --primary-foreground: 24 40% 8%;
-    --primary-glow: 45 100% 68%;
+    --primary: 36 92% 50%;
+    --primary-foreground: 26 40% 12%;
+    --primary-glow: 45 100% 64%;
 
-    --secondary: 24 14% 16%;
-    --secondary-foreground: 40 30% 92%;
+    --secondary: 38 40% 93%;
+    --secondary-foreground: 26 28% 22%;
 
-    --muted: 24 12% 15%;
-    --muted-foreground: 36 12% 66%;
+    --muted: 38 34% 94%;
+    --muted-foreground: 28 12% 44%;
 
     /* Mint — positive actions */
-    --accent: 158 72% 48%;
-    --accent-foreground: 160 60% 8%;
+    --accent: 158 62% 40%;
+    --accent-foreground: 0 0% 100%;
 
     /* Coral — you owe */
-    --destructive: 356 82% 62%;
+    --destructive: 356 74% 54%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 30 12% 20%;
-    --input: 30 12% 20%;
-    --ring: 38 96% 56%;
+    --border: 34 28% 88%;
+    --input: 34 28% 88%;
+    --ring: 36 92% 50%;
 
     --radius: 1.1rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
-    --gradient-stout: linear-gradient(180deg, hsl(24 22% 9%), hsl(24 24% 5%));
-    --shadow-glow: 0 18px 60px -20px hsl(var(--primary) / 0.55);
-    --shadow-card: 0 14px 40px -22px hsl(24 40% 2% / 0.9);
+    --gradient-stout: linear-gradient(180deg, hsl(42 60% 98%), hsl(38 46% 95%));
+    --shadow-glow: 0 14px 40px -16px hsl(var(--primary) / 0.45);
+    --shadow-card: 0 12px 34px -22px hsl(28 40% 30% / 0.35);
 
-    --sidebar-background: 24 18% 10%;
-    --sidebar-foreground: 40 30% 90%;
-    --sidebar-primary: 38 96% 56%;
-    --sidebar-primary-foreground: 24 40% 8%;
-    --sidebar-accent: 24 14% 16%;
-    --sidebar-accent-foreground: 40 30% 90%;
-    --sidebar-border: 30 12% 20%;
-    --sidebar-ring: 38 96% 56%;
+    --sidebar-background: 42 50% 96%;
+    --sidebar-foreground: 26 28% 20%;
+    --sidebar-primary: 36 92% 50%;
+    --sidebar-primary-foreground: 26 40% 12%;
+    --sidebar-accent: 38 40% 93%;
+    --sidebar-accent-foreground: 26 28% 22%;
+    --sidebar-border: 34 28% 88%;
+    --sidebar-ring: 36 92% 50%;
   }
+
 
   .dark {
     --background: 24 22% 7%;
@@ -100,8 +101,9 @@ All colors MUST be HSL. */
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
-      radial-gradient(60rem 40rem at 50% -12rem, hsl(var(--primary) / 0.14), transparent 70%),
+      radial-gradient(60rem 40rem at 50% -14rem, hsl(var(--primary) / 0.18), transparent 70%),
       var(--gradient-stout);
+
     background-attachment: fixed;
   }
 
@@ -121,7 +123,8 @@ All colors MUST be HSL. */
   }
 
   .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-border/70;
+    @apply bg-card/85 backdrop-blur-xl border border-border/70;
+
     box-shadow: var(--shadow-card);
   }
 
