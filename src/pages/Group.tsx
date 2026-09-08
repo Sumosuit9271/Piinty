@@ -157,7 +157,37 @@ const Group = () => {
   };
 
   const isDemoPair = (from: string, to: string) =>
-    from === DEMO_NAME || to === DEMO_NAME;
+    demoNames.includes(from) || demoNames.includes(to);
+
+  const addDemoMate = () => {
+    const name = newDemoName.trim();
+    if (!name) return;
+    const taken = [...members.map((m) => m.display_name), ...demoNames].some(
+      (n) => n.toLowerCase() === name.toLowerCase()
+    );
+    if (taken) {
+      toast({
+        title: "Name already used",
+        description: "Pick a different name for your sample mate",
+        variant: "destructive",
+      });
+      return;
+    }
+    setDemoNames((prev) => [...prev, name]);
+    setNewDemoName("");
+  };
+
+  const removeDemoMate = (name: string) => {
+    setDemoNames((prev) => prev.filter((n) => n !== name));
+    setDemoPints((prev) => {
+      const next: Record<string, PintEntry[]> = {};
+      Object.entries(prev).forEach(([key, value]) => {
+        const [from, to] = key.split("->");
+        if (from !== name && to !== name) next[key] = value;
+      });
+      return next;
+    });
+  };
 
   const confirmAddPint = async (note: string, photo?: string) => {
     if (isDemoPair(addPintDialog.from, addPintDialog.to)) {
