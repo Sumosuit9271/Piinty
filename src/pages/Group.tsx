@@ -21,7 +21,17 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
-import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
+import { UserMinus, Users, ArrowLeft, Share2, Trash2, LogOut } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { enforceRememberMePolicy } from "@/lib/session";
 
 interface Profile {
@@ -61,6 +71,11 @@ const Group = () => {
   const [addMemberDialog, setAddMemberDialog] = useState(false);
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
+  const [currentUserId, setCurrentUserId] = useState<string | null>(null);
+  const [groupCreatedBy, setGroupCreatedBy] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<Profile | null>(null);
+  const [confirmDeleteGroup, setConfirmDeleteGroup] = useState(false);
+  const [confirmLeaveGroup, setConfirmLeaveGroup] = useState(false);
 
   useEffect(() => {
     checkAuthAndLoadGroup();
@@ -74,6 +89,7 @@ const Group = () => {
       return;
     }
 
+    setCurrentUserId(session.user.id);
     loadGroupData();
   };
 
@@ -84,13 +100,14 @@ const Group = () => {
       // Load group info
       const { data: group, error: groupError } = await supabase
         .from("groups")
-        .select("name, avatar_url")
+        .select("name, avatar_url, created_by")
         .eq("id", groupId)
         .single();
 
       if (groupError) throw groupError;
       setGroupName(group.name);
       setGroupAvatarUrl(group.avatar_url);
+      setGroupCreatedBy(group.created_by);
 
       // Load group members
       const { data: membersData, error: membersError } = await supabase
@@ -394,15 +411,6 @@ const Group = () => {
 
 
   const handleRemoveMember = async (member: Profile) => {
-    if (members.length <= 2) {
-      toast({
-        title: "Cannot remove",
-        description: "Need at least 2 members",
-        variant: "destructive",
-      });
-      return;
-    }
-
     try {
       const { error } = await supabase
         .from("group_members")
@@ -414,13 +422,58 @@ const Group = () => {
 
       toast({
         title: "Member removed",
-        description: `${member.display_name} left the group`,
+        description: `${member.display_name} is no longer in the group`,
       });
 
       loadGroupData();
     } catch (error: any) {
       toast({
         title: "Error removing member",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteGroup = async () => {
+    if (!groupId) return;
+    try {
+      const { error } = await supabase.from("groups").delete().eq("id", groupId);
+      if (error) throw error;
+
+      toast({
+        title: "Group deleted",
+        description: `"${groupName}" and everything in it is gone`,
+      });
+      navigate("/groups");
+    } catch (error: any) {
+      toast({
+        title: "Error deleting group",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleLeaveGroup = async () => {
+    if (!groupId || !currentUserId) return;
+    try {
+      const { error } = await supabase
+        .from("group_members")
+        .delete()
+        .eq("group_id", groupId)
+        .eq("user_id", currentUserId);
+
+      if (error) throw error;
+
+      toast({
+        title: "You left the group",
+        description: `You're no longer in "${groupName}"`,
+      });
+      navigate("/groups");
+    } catch (error: any) {
+      toast({
+        title: "Error leaving group",
         description: error.message,
         variant: "destructive",
       });
@@ -498,6 +551,7 @@ const Group = () => {
   }, {} as Record<string, string | null>);
   demoNames.forEach((n) => { memberAvatars[n] = demoAvatars[n] || null; });
   const allPints = { ...pints, ...demoPints };
+  const isCreator = !!currentUserId && currentUserId === groupCreatedBy;
 
 
   return (
@@ -723,18 +777,61 @@ const Group = () => {
                     key={member.id}
                     className="flex items-center justify-between p-2 bg-secondary/50 rounded"
                   >
-                    <span className="text-sm">{member.display_name}</span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-7 w-7"
-                      onClick={() => handleRemoveMember(member)}
-                    >
-                      <UserMinus className="h-3 w-3" />
-                    </Button>
+                    <span className="text-sm">
+                      {member.display_name}
+                      {member.id === groupCreatedBy && (
+                        <span className="ml-2 text-[10px] uppercase tracking-wide text-muted-foreground">
+                          Owner
+                        </span>
+                      )}
+                    </span>
+                    {isCreator && member.id !== groupCreatedBy && (
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="h-7 w-7"
+                        title={`Remove ${member.display_name}`}
+                        onClick={() => setMemberToRemove(member)}
+                      >
+                        <UserMinus className="h-3 w-3" />
+                      </Button>
+                    )}
                   </div>
                 ))}
               </div>
+            </div>
+
+            <div className="space-y-2 border-t border-border/60 pt-4">
+              <label className="text-sm font-medium">Danger zone</label>
+              {isCreator ? (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Deleting removes every pint, photo and message in this group.
+                  </p>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setConfirmDeleteGroup(true)}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                    Delete group
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <p className="text-xs text-muted-foreground">
+                    Leaving takes this group off your list.
+                  </p>
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => setConfirmLeaveGroup(true)}
+                  >
+                    <LogOut className="h-4 w-4" />
+                    Leave group
+                  </Button>
+                </>
+              )}
             </div>
           </div>
 
@@ -745,6 +842,80 @@ const Group = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog
+        open={!!memberToRemove}
+        onOpenChange={(open) => !open && setMemberToRemove(null)}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>
+              Remove {memberToRemove?.display_name}?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              They'll lose access to this group. Their pint history stays on the slate.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                const member = memberToRemove;
+                setMemberToRemove(null);
+                if (member) handleRemoveMember(member);
+              }}
+            >
+              Remove
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmDeleteGroup} onOpenChange={setConfirmDeleteGroup}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete "{groupName}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Every pint, photo and message in this group is deleted for everyone.
+              This can't be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmDeleteGroup(false);
+                handleDeleteGroup();
+              }}
+            >
+              Delete group
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={confirmLeaveGroup} onOpenChange={setConfirmLeaveGroup}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Leave "{groupName}"?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You won't see this group any more. Someone can invite you back with
+              the group's link.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setConfirmLeaveGroup(false);
+                handleLeaveGroup();
+              }}
+            >
+              Leave
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
