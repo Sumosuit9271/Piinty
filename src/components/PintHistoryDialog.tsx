@@ -28,14 +28,20 @@ export function PintHistoryDialog({
   onTogglePaid,
 }: PintHistoryDialogProps) {
   const formatDate = (timestamp: number) => {
-    const date = new Date(timestamp);
-    return date.toLocaleDateString("en-US", {
-      month: "short",
+    const diff = Date.now() - timestamp;
+    const mins = Math.round(diff / 60000);
+    if (mins < 1) return "just now";
+    if (mins < 60) return `${mins} min${mins === 1 ? "" : "s"} ago`;
+    const hours = Math.round(mins / 60);
+    if (hours < 24) return `${hours} hour${hours === 1 ? "" : "s"} ago`;
+    const days = Math.round(hours / 24);
+    if (days < 30) return `${days} day${days === 1 ? "" : "s"} ago`;
+    return new Date(timestamp).toLocaleDateString("en-GB", {
       day: "numeric",
-      hour: "numeric",
-      minute: "2-digit",
+      month: "short",
     });
   };
+
 
   // Safety check: ensure pints is always an array
   const safePints = Array.isArray(pints) ? pints : [];
