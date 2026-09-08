@@ -604,7 +604,7 @@ const Group = () => {
         onClose={() => setHistoryDialog({ open: false, from: "", to: "" })}
         fromMember={historyDialog.from}
         toMember={historyDialog.to}
-        pints={pints[`${historyDialog.from}->${historyDialog.to}`] || []}
+        pints={allPints[`${historyDialog.from}->${historyDialog.to}`] || []}
         onTogglePaid={handleTogglePaid}
       />
 
