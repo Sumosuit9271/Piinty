@@ -288,36 +288,38 @@ export default function Groups() {
         />
       </header>
 
-      <main className="container mx-auto px-4 py-6">
+      <main className="container mx-auto px-4 py-6 max-w-3xl">
         {groups.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12">
-            <Users className="h-16 w-16 text-muted-foreground mb-4" />
-            <h2 className="text-xl font-semibold mb-2">No groups yet</h2>
-            <p className="text-muted-foreground mb-6 text-center">
-              Create your first group to start tracking pints
+          <div className="flex flex-col items-center justify-center py-16 animate-fade-up">
+            <div className="rounded-full bg-primary/10 p-6 mb-5 amber-glow">
+              <Users className="h-12 w-12 text-primary" />
+            </div>
+            <h2 className="font-display text-2xl mb-2">No crews yet</h2>
+            <p className="text-muted-foreground mb-6 text-center text-sm">
+              Start a group and settle the rounds
             </p>
-            <Button onClick={() => setCreateDialogOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Create Group
+            <Button size="lg" onClick={() => setCreateDialogOpen(true)}>
+              <Plus className="h-4 w-4" />
+              Create group
             </Button>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-3">
             {groups.map((group) => (
               <Card
                 key={group.id}
-                className="p-4 cursor-pointer hover:bg-accent/50 transition-colors"
+                className="p-4 rounded-2xl glass-card cursor-pointer pint-hover animate-fade-up"
                 onClick={() => navigate(`/group/${group.id}`)}
               >
                 <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-2 bg-primary/10 rounded-full">
-                      <Users className="h-5 w-5 text-primary" />
+                  <div className="flex items-center gap-4">
+                    <div className="h-12 w-12 rounded-full bg-gradient-primary flex items-center justify-center shadow-glow">
+                      <Users className="h-5 w-5 text-primary-foreground" />
                     </div>
                     <div>
-                      <h3 className="font-semibold">{group.name}</h3>
-                      <p className="text-sm text-muted-foreground">
-                        Tap to view
+                      <h3 className="font-display text-lg leading-tight">{group.name}</h3>
+                      <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                        Open the slate
                       </p>
                     </div>
                   </div>
@@ -328,6 +330,7 @@ export default function Groups() {
           </div>
         )}
       </main>
+
 
       {/* Floating Action Button */}
       {groups.length > 0 && (
