@@ -575,22 +575,47 @@ const Group = () => {
             </Button>
           </div>
 
-          <div className="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 animate-fade-up">
+          <div className="glass-card rounded-2xl p-4 space-y-3 animate-fade-up">
             <p className="text-sm text-muted-foreground">
-              {demoAdded
-                ? `"${DEMO_NAME}" is practice only — not saved.`
-                : "Try it out with a pretend mate"}
+              Try it out with pretend mates — practice only, not saved.
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setDemoAdded(!demoAdded);
-                if (demoAdded) setDemoPints({});
-              }}
-            >
-              {demoAdded ? "Remove" : "Add sample"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Input
+                value={newDemoName}
+                onChange={(e) => setNewDemoName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addDemoMate();
+                  }
+                }}
+                placeholder="Name your sample mate"
+                maxLength={24}
+                className="rounded-full h-9"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addDemoMate}
+                disabled={!newDemoName.trim()}
+              >
+                Add
+              </Button>
+            </div>
+            {demoNames.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {demoNames.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => removeDemoMate(name)}
+                    className="text-xs rounded-full bg-muted px-3 py-1 hover:bg-destructive/10 transition-colors"
+                    title="Remove sample mate"
+                  >
+                    {name} ✕
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
