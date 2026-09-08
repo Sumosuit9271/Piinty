@@ -220,9 +220,10 @@ export default function Auth() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            {loading ? "Pouring..." : isSignUp ? "Create account" : "Sign in"}
           </Button>
+
         </form>
 
         <div className="mt-6 text-center">
@@ -237,7 +238,8 @@ export default function Auth() {
       </Card>
 
       {showPWAGuide && (
-        <Card className="w-full max-w-md p-6 mt-4 bg-primary/5 border-primary/20 relative">
+        <Card className="w-full max-w-md p-6 mt-4 rounded-3xl glass-card border-primary/20 relative animate-fade-up">
+
           <Button
             variant="ghost"
             size="icon"

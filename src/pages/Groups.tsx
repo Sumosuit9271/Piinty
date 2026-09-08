@@ -242,10 +242,11 @@ export default function Groups() {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen">
       {/* Header */}
-      <header className="sticky top-0 z-10 bg-background border-b">
-        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+      <header className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/60">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between max-w-3xl">
+
           <div className="flex items-center gap-3">
             <img src={piintyLogo} alt="Piinty Logo" className="h-12 w-auto" />
             <div className="flex items-center gap-2">
