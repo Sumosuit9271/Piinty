@@ -551,6 +551,7 @@ const Group = () => {
   }, {} as Record<string, string | null>);
   demoNames.forEach((n) => { memberAvatars[n] = demoAvatars[n] || null; });
   const allPints = { ...pints, ...demoPints };
+  const isCreator = !!currentUserId && currentUserId === groupCreatedBy;
 
 
   return (
