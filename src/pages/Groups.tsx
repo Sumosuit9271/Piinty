@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Users, LogOut, ChevronRight, Camera, X } from "lucide-react";
+import { Plus, Users, LogOut, ChevronRight, Camera, X, Pencil } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
 
@@ -31,6 +31,9 @@ export default function Groups() {
   const [userDisplayName, setUserDisplayName] = useState("");
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | null>(null);
   const [userId, setUserId] = useState<string>("");
+  const [nameDialogOpen, setNameDialogOpen] = useState(false);
+  const [newDisplayName, setNewDisplayName] = useState("");
+  const [savingName, setSavingName] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -263,7 +266,19 @@ export default function Groups() {
                 </div>
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">{userDisplayName}</p>
+                <div className="flex items-center gap-1.5">
+                  <p className="text-sm font-medium">{userDisplayName}</p>
+                  <button
+                    onClick={() => {
+                      setNewDisplayName(userDisplayName);
+                      setNameDialogOpen(true);
+                    }}
+                    className="text-muted-foreground hover:text-foreground transition-colors"
+                    title="Change your name"
+                  >
+                    <Pencil className="h-3.5 w-3.5" />
+                  </button>
+                </div>
                 {userAvatarUrl && (
                   <button
                     onClick={handleRemoveAvatar}
@@ -275,6 +290,7 @@ export default function Groups() {
               </div>
             </div>
           </div>
+
           <Button variant="ghost" size="icon" onClick={handleSignOut}>
             <LogOut className="h-5 w-5" />
           </Button>
