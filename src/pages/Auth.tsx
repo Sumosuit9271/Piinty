@@ -45,6 +45,8 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      setRememberMe(rememberMe);
+
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -59,66 +61,40 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // Manually create profile to ensure it exists
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert({
-              id: data.user.id,
-              phone_number: email,
-              display_name: displayName || email.split('@')[0],
-            });
-
-          if (profileError) console.error("Profile creation error:", profileError);
-          
-          // Auto-join group if invited
-          if (inviteGroupId) {
-            const { error: memberError } = await supabase
-              .from("group_members")
-              .insert({
-                group_id: inviteGroupId,
-                user_id: data.user.id,
-              });
-            
-            if (memberError) console.error("Auto-join error:", memberError);
-          }
+        // Profile + contact record are created automatically on sign up.
+        if (data.user && inviteGroupId) {
+          await joinGroupFromInvite(inviteGroupId, data.user.id);
         }
 
         toast({
           title: "Account created!",
-          description: inviteGroupId 
+          description: inviteGroupId
             ? `Welcome! Joining ${inviteGroupName || "group"}...`
             : "You're now signed in",
         });
-        
+
         if (inviteGroupId) {
           navigate(`/group/${inviteGroupId}`);
         } else {
           navigate("/groups");
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
 
-        // If "Remember me" is unchecked, set up auto-logout on browser close
-        if (!rememberMe) {
-          sessionStorage.setItem("autoLogout", "true");
-          window.addEventListener("beforeunload", async () => {
-            await supabase.auth.signOut();
-          });
-        } else {
-          sessionStorage.removeItem("autoLogout");
+        if (data.user && inviteGroupId) {
+          await joinGroupFromInvite(inviteGroupId, data.user.id);
         }
 
         toast({
           title: "Welcome back!",
           description: "You're signed in",
         });
-        
+
         if (inviteGroupId) {
           navigate(`/group/${inviteGroupId}`);
         } else {
