@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
@@ -550,7 +551,7 @@ const Group = () => {
     acc[m.display_name] = m.avatar_url || null;
     return acc;
   }, {} as Record<string, string | null>);
-  demoNames.forEach((n) => { memberAvatars[n] = null; });
+  demoNames.forEach((n) => { memberAvatars[n] = demoAvatars[n] || null; });
   const allPints = { ...pints, ...demoPints };
 
 
