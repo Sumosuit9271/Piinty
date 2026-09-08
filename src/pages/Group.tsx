@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
+import { enforceRememberMePolicy } from "@/lib/session";
 
 interface Profile {
   id: string;
@@ -58,8 +59,6 @@ const Group = () => {
   }>({ open: false, from: "", to: "" });
 
   const [addMemberDialog, setAddMemberDialog] = useState(false);
-  const [newMemberCountryCode, setNewMemberCountryCode] = useState("1");
-  const [newMemberPhone, setNewMemberPhone] = useState("");
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
 
@@ -67,19 +66,8 @@ const Group = () => {
     checkAuthAndLoadGroup();
   }, [groupId]);
 
-  useEffect(() => {
-    // Set up auto-logout on browser close if "Remember me" was unchecked
-    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
-    if (shouldAutoLogout) {
-      const handleBeforeUnload = async () => {
-        await supabase.auth.signOut();
-      };
-      window.addEventListener("beforeunload", handleBeforeUnload);
-      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-    }
-  }, []);
-
   const checkAuthAndLoadGroup = async () => {
+    await enforceRememberMePolicy();
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/auth");
