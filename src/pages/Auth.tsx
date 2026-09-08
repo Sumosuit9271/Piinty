@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
+import { enforceRememberMePolicy, joinGroupFromInvite, setRememberMe } from "@/lib/session";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -24,26 +25,19 @@ export default function Auth() {
   const inviteGroupName = searchParams.get("name");
 
   useEffect(() => {
-    // Check if already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        if (inviteGroupId) {
-          navigate(`/group/${inviteGroupId}`);
-        } else {
-          navigate("/groups");
-        }
-      }
-    });
+    const run = async () => {
+      await enforceRememberMePolicy();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    // Set up auto-logout on browser close if flag is set
-    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
-    if (shouldAutoLogout) {
-      const handleBeforeUnload = async () => {
-        await supabase.auth.signOut();
-      };
-      window.addEventListener("beforeunload", handleBeforeUnload);
-      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-    }
+      if (inviteGroupId) {
+        await joinGroupFromInvite(inviteGroupId, session.user.id);
+        navigate(`/group/${inviteGroupId}`);
+      } else {
+        navigate("/groups");
+      }
+    };
+    run();
   }, [navigate, inviteGroupId]);
 
   const handleAuth = async (e: React.FormEvent) => {
