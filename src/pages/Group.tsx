@@ -177,8 +177,29 @@ const Group = () => {
     setNewDemoName("");
   };
 
+  const setDemoPhoto = (name: string, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please pick an image", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too big", description: "Max 5MB", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDemoAvatars((prev) => ({ ...prev, [name]: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const removeDemoMate = (name: string) => {
     setDemoNames((prev) => prev.filter((n) => n !== name));
+    setDemoAvatars((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
     setDemoPints((prev) => {
       const next: Record<string, PintEntry[]> = {};
       Object.entries(prev).forEach(([key, value]) => {
