@@ -586,6 +586,9 @@ const Group = () => {
           <TallySection members={memberNames} pints={allPints} />
         </section>
 
+        <GroupChat groupId={groupId || ""} members={members} />
+
+
       </main>
 
       <AddPintDialog
