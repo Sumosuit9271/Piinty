@@ -7,6 +7,7 @@ import { TallySection } from "@/components/TallySection";
 import { AddPintDialog } from "@/components/AddPintDialog";
 import { PintHistoryDialog } from "@/components/PintHistoryDialog";
 import { Leaderboard } from "@/components/Leaderboard";
+import { GroupChat } from "@/components/GroupChat";
 import { PintEntry } from "@/types/pint";
 import {
   Dialog,
@@ -585,6 +586,9 @@ const Group = () => {
         <section>
           <TallySection members={memberNames} pints={allPints} />
         </section>
+
+        <GroupChat groupId={groupId || ""} members={members} />
+
 
       </main>
 
