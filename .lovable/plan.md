@@ -1,26 +1,28 @@
-# Ready for a stranger to sign up and share
+# Delete groups and remove members
 
-## What I checked
+Today a group lasts forever and nobody can be taken out of it. This adds tidy-up controls.
 
-- Sign-up creates an account instantly (no email confirmation step), so a brand new person lands straight in the app. Confirmed against the three existing accounts: each was active the same millisecond it was created.
-- Sign-up automatically creates their name record and keeps their email in a private, owner-only record.
-- Opening an invite link takes a new person to sign-up and then adds them to that group automatically; opening it twice is harmless.
-- Groups, pints, photos and chat are only readable by people who are in the group, so a stranger who never got a link sees nothing.
+## What you'll be able to do
 
-So yes: someone can find Piinty, sign up, create a group and share it, and it works.
+- The person who made a group can delete it. A confirm step warns that all pints, photos and chat in it go too.
+- The person who made a group can remove a member from it.
+- Anyone can leave a group they're in (the creator must delete the group rather than leave it).
+- After removing or leaving, the screen updates straight away and the person who left no longer sees the group.
 
-## Two gaps worth closing before you promote it
+## Where the controls live
 
-1. Invite links are permanent and unlimited. Anyone the link is forwarded to can join the group, forever. Add a simple control for the group creator:
-   - a toggle to turn the invite link on or off
-   - a "reset link" action that makes old links stop working
-2. Nobody can delete a group or remove a member. Once a group exists it stays. Add:
-   - creator can delete their group (and everything inside it)
-   - creator can remove a member; any member can leave
+- Group screen menu: "Remove member" (creator only) and "Leave group" / "Delete group".
+- Member list in the matrix: a small remove action next to each member for the creator.
+- Sample mates are unaffected — they're only on your own device and already removable.
 
 ## Technical notes
 
-- Invite control: add `invite_code` (random text, default generated) and `invite_enabled` (boolean, default true) to `groups`. Invite URL becomes `/auth?invite=<code>`. Joining moves into a `SECURITY DEFINER` function `join_group_by_code(code)` that resolves the code, checks `invite_enabled`, and inserts the membership; the current self-join policy on `group_members` is then dropped so group IDs alone grant nothing. `Group.tsx` share dialog gains enable/disable and regenerate buttons; `Auth.tsx` calls the new function and reads the returned group id for navigation.
-- Deletion: `ON DELETE CASCADE` on `pints`, `group_messages`, `group_members` pointing at `groups`, plus a DELETE policy on `groups` for `created_by = auth.uid()` and a DELETE policy on `group_members` allowing the group creator to remove others (self-leave policy already exists). UI: menu entries in `GroupHeader` with confirm dialogs.
-- No schema or index work needed for load; indexes on `pints(group_id)`, `pints(group_id, paid)`, `group_members(user_id)` and `groups(created_by)` are already in place.
-- After these changes, publish so the live site picks them up.
+- Migration:
+  - Re-point child foreign keys at `groups` with `ON DELETE CASCADE`: `pints.group_id`, `group_messages.group_id`, `group_members.group_id`. Also `ON DELETE CASCADE` on `pints.from_user_id` / `pints.to_user_id` is not wanted — instead deleting a member leaves their pint history in place, so those stay as-is.
+  - `CREATE POLICY` on `groups` for DELETE: `created_by = auth.uid()`.
+  - `CREATE POLICY` on `group_members` for DELETE by the group creator: `EXISTS (SELECT 1 FROM groups g WHERE g.id = group_members.group_id AND g.created_by = auth.uid())`. The existing self-leave policy stays; add a guard so the creator cannot leave their own group (handled in UI plus a policy condition `user_id <> (SELECT created_by FROM groups WHERE id = group_id)` on the self-leave path).
+- Frontend (`src/pages/Group.tsx`, `src/components/GroupHeader.tsx`):
+  - Track `isCreator` from the loaded group's `created_by`.
+  - `AlertDialog` confirmations for delete group, remove member, leave group.
+  - On delete/leave, navigate back to `/groups`; on remove, refresh the member and pint state.
+  - Toasts for success and failure.
