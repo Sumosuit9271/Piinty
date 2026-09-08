@@ -664,48 +664,27 @@ const Group = () => {
               Add Member
             </DialogTitle>
             <DialogDescription>
-              Enter their phone number to add them
+              Send your mates this link — they join {groupName} as soon as they
+              sign in.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            <label htmlFor="member-phone" className="text-sm font-medium">
-              Phone Number
-            </label>
-            <div className="flex gap-2">
-              <div className="flex items-center bg-secondary rounded-md px-3 w-[80px]">
-                <span className="text-muted-foreground text-sm mr-1">+</span>
-                <Input
-                  type="text"
-                  value={newMemberCountryCode}
-                  onChange={(e) => setNewMemberCountryCode(e.target.value.replace(/\D/g, ''))}
-                  className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
-                  placeholder="1"
-                  maxLength={3}
-                />
-              </div>
-              <Input
-                id="member-phone"
-                placeholder="7123456789"
-                value={newMemberPhone}
-                onChange={(e) => setNewMemberPhone(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddMember();
-                }}
-              />
-            </div>
+          <div className="rounded-xl bg-muted p-3 text-xs break-all text-muted-foreground">
+            {`${window.location.origin}/auth?invite=${groupId}&name=${encodeURIComponent(groupName)}`}
           </div>
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setAddMemberDialog(false)}>
-              Cancel
+              Close
             </Button>
-            <Button onClick={handleAddMember} disabled={!newMemberPhone.trim()}>
-              Add Member
+            <Button onClick={handleShareInvite}>
+              <Share2 className="h-4 w-4" />
+              Share invite link
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       <Dialog open={settingsDialog} onOpenChange={setSettingsDialog}>
         <DialogContent className="sm:max-w-md">
