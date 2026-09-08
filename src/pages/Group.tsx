@@ -18,6 +18,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
@@ -40,6 +41,7 @@ const Group = () => {
   const [loading, setLoading] = useState(true);
   const [demoNames, setDemoNames] = useState<string[]>([]);
   const [newDemoName, setNewDemoName] = useState("");
+  const [demoAvatars, setDemoAvatars] = useState<Record<string, string>>({});
   const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
 
 
@@ -177,8 +179,29 @@ const Group = () => {
     setNewDemoName("");
   };
 
+  const setDemoPhoto = (name: string, file: File) => {
+    if (!file.type.startsWith("image/")) {
+      toast({ title: "Please pick an image", variant: "destructive" });
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast({ title: "Image too big", description: "Max 5MB", variant: "destructive" });
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      setDemoAvatars((prev) => ({ ...prev, [name]: reader.result as string }));
+    };
+    reader.readAsDataURL(file);
+  };
+
   const removeDemoMate = (name: string) => {
     setDemoNames((prev) => prev.filter((n) => n !== name));
+    setDemoAvatars((prev) => {
+      const next = { ...prev };
+      delete next[name];
+      return next;
+    });
     setDemoPints((prev) => {
       const next: Record<string, PintEntry[]> = {};
       Object.entries(prev).forEach(([key, value]) => {
@@ -528,7 +551,7 @@ const Group = () => {
     acc[m.display_name] = m.avatar_url || null;
     return acc;
   }, {} as Record<string, string | null>);
-  demoNames.forEach((n) => { memberAvatars[n] = null; });
+  demoNames.forEach((n) => { memberAvatars[n] = demoAvatars[n] || null; });
   const allPints = { ...pints, ...demoPints };
 
 
@@ -605,14 +628,37 @@ const Group = () => {
             {demoNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {demoNames.map((name) => (
-                  <button
+                  <div
                     key={name}
-                    onClick={() => removeDemoMate(name)}
-                    className="text-xs rounded-full bg-muted px-3 py-1 hover:bg-destructive/10 transition-colors"
-                    title="Remove sample mate"
+                    className="flex items-center gap-2 rounded-full bg-muted pl-1 pr-2 py-1"
                   >
-                    {name} ✕
-                  </button>
+                    <label className="cursor-pointer" title="Add a picture">
+                      <Avatar className="h-7 w-7">
+                        <AvatarImage src={demoAvatars[name]} />
+                        <AvatarFallback className="text-[10px]">
+                          {name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setDemoPhoto(name, file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <span className="text-xs">{name}</span>
+                    <button
+                      onClick={() => removeDemoMate(name)}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                      title="Remove sample mate"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
