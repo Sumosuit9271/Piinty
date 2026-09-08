@@ -22,6 +22,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { toast } from "@/hooks/use-toast";
 import { UserMinus, Users, ArrowLeft, Share2 } from "lucide-react";
+import { enforceRememberMePolicy } from "@/lib/session";
 
 interface Profile {
   id: string;
@@ -58,8 +59,6 @@ const Group = () => {
   }>({ open: false, from: "", to: "" });
 
   const [addMemberDialog, setAddMemberDialog] = useState(false);
-  const [newMemberCountryCode, setNewMemberCountryCode] = useState("1");
-  const [newMemberPhone, setNewMemberPhone] = useState("");
   const [settingsDialog, setSettingsDialog] = useState(false);
   const [newGroupName, setNewGroupName] = useState("");
 
@@ -67,19 +66,8 @@ const Group = () => {
     checkAuthAndLoadGroup();
   }, [groupId]);
 
-  useEffect(() => {
-    // Set up auto-logout on browser close if "Remember me" was unchecked
-    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
-    if (shouldAutoLogout) {
-      const handleBeforeUnload = async () => {
-        await supabase.auth.signOut();
-      };
-      window.addEventListener("beforeunload", handleBeforeUnload);
-      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-    }
-  }, []);
-
   const checkAuthAndLoadGroup = async () => {
+    await enforceRememberMePolicy();
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) {
       navigate("/auth");
@@ -111,28 +99,43 @@ const Group = () => {
         .eq("group_id", groupId);
 
       if (membersError) throw membersError;
-      
-      const profilesList = membersData
+
+      const rawProfiles = membersData
         .map((m: any) => m.profiles)
         .filter(Boolean);
+
+      // Make sure two mates with the same name never share a column
+      const nameCounts: Record<string, number> = {};
+      const profilesList = rawProfiles.map((p: any) => {
+        const base = (p.display_name || "Mate").trim() || "Mate";
+        nameCounts[base] = (nameCounts[base] || 0) + 1;
+        return {
+          ...p,
+          display_name: nameCounts[base] > 1 ? `${base} (${nameCounts[base]})` : base,
+        };
+      });
       setMembers(profilesList);
 
-      // Load pints
+      const nameById: Record<string, string> = {};
+      profilesList.forEach((p: any) => { nameById[p.id] = p.display_name; });
+
+      // Load pints (most recent first, capped so long-running groups stay fast)
       const { data: pintsData, error: pintsError } = await supabase
         .from("pints")
-        .select(`
-          *,
-          from_profile:from_user_id(display_name),
-          to_profile:to_user_id(display_name)
-        `)
-        .eq("group_id", groupId);
+        .select("from_user_id, to_user_id, note, photo, paid, created_at")
+        .eq("group_id", groupId)
+        .order("created_at", { ascending: false })
+        .limit(1000);
 
       if (pintsError) throw pintsError;
 
-      // Convert to the format expected by components
+      // Convert to the format expected by components (oldest first)
       const pintsMap: Record<string, PintEntry[]> = {};
-      pintsData.forEach((pint: any) => {
-        const key = `${pint.from_profile.display_name}->${pint.to_profile.display_name}`;
+      [...pintsData].reverse().forEach((pint: any) => {
+        const from = nameById[pint.from_user_id];
+        const to = nameById[pint.to_user_id];
+        if (!from || !to) return;
+        const key = `${from}->${to}`;
         if (!pintsMap[key]) pintsMap[key] = [];
         pintsMap[key].push({
           note: pint.note || "",
@@ -387,66 +390,8 @@ const Group = () => {
     }
   };
 
-  const handleAddMember = async () => {
-    const trimmed = newMemberPhone.trim();
-    if (!trimmed || !groupId) return;
+  // Mates join by opening the group's invite link (see handleShareInvite).
 
-    const fullPhone = `+${newMemberCountryCode}${trimmed}`;
-
-    try {
-      // Find user by phone
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .eq("phone_number", fullPhone)
-        .single();
-
-      if (profileError) {
-        toast({
-          title: "User not found",
-          description: "No user with that phone number",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Add to group
-      const { error: memberError } = await supabase
-        .from("group_members")
-        .insert({
-          group_id: groupId,
-          user_id: profile.id,
-        });
-
-      if (memberError) {
-        if (memberError.code === "23505") {
-          toast({
-            title: "Already a member",
-            description: "This user is already in the group",
-            variant: "destructive",
-          });
-        } else {
-          throw memberError;
-        }
-        return;
-      }
-
-      toast({
-        title: "Member added!",
-        description: `${profile.display_name} joined the group`,
-      });
-
-      setNewMemberPhone("");
-      setAddMemberDialog(false);
-      loadGroupData();
-    } catch (error: any) {
-      toast({
-        title: "Error adding member",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleRemoveMember = async (member: Profile) => {
     if (members.length <= 2) {
@@ -719,48 +664,27 @@ const Group = () => {
               Add Member
             </DialogTitle>
             <DialogDescription>
-              Enter their phone number to add them
+              Send your mates this link — they join {groupName} as soon as they
+              sign in.
             </DialogDescription>
           </DialogHeader>
 
-          <div className="space-y-2">
-            <label htmlFor="member-phone" className="text-sm font-medium">
-              Phone Number
-            </label>
-            <div className="flex gap-2">
-              <div className="flex items-center bg-secondary rounded-md px-3 w-[80px]">
-                <span className="text-muted-foreground text-sm mr-1">+</span>
-                <Input
-                  type="text"
-                  value={newMemberCountryCode}
-                  onChange={(e) => setNewMemberCountryCode(e.target.value.replace(/\D/g, ''))}
-                  className="border-0 bg-transparent p-0 h-auto focus-visible:ring-0 focus-visible:ring-offset-0 w-full"
-                  placeholder="1"
-                  maxLength={3}
-                />
-              </div>
-              <Input
-                id="member-phone"
-                placeholder="7123456789"
-                value={newMemberPhone}
-                onChange={(e) => setNewMemberPhone(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") handleAddMember();
-                }}
-              />
-            </div>
+          <div className="rounded-xl bg-muted p-3 text-xs break-all text-muted-foreground">
+            {`${window.location.origin}/auth?invite=${groupId}&name=${encodeURIComponent(groupName)}`}
           </div>
 
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => setAddMemberDialog(false)}>
-              Cancel
+              Close
             </Button>
-            <Button onClick={handleAddMember} disabled={!newMemberPhone.trim()}>
-              Add Member
+            <Button onClick={handleShareInvite}>
+              <Share2 className="h-4 w-4" />
+              Share invite link
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
 
       <Dialog open={settingsDialog} onOpenChange={setSettingsDialog}>
         <DialogContent className="sm:max-w-md">

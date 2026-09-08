@@ -8,6 +8,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Mail, Share, Plus, Smartphone, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
+import { enforceRememberMePolicy, joinGroupFromInvite, setRememberMe } from "@/lib/session";
 
 export default function Auth() {
   const [email, setEmail] = useState("");
@@ -24,26 +25,19 @@ export default function Auth() {
   const inviteGroupName = searchParams.get("name");
 
   useEffect(() => {
-    // Check if already logged in
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (session) {
-        if (inviteGroupId) {
-          navigate(`/group/${inviteGroupId}`);
-        } else {
-          navigate("/groups");
-        }
-      }
-    });
+    const run = async () => {
+      await enforceRememberMePolicy();
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
 
-    // Set up auto-logout on browser close if flag is set
-    const shouldAutoLogout = sessionStorage.getItem("autoLogout") === "true";
-    if (shouldAutoLogout) {
-      const handleBeforeUnload = async () => {
-        await supabase.auth.signOut();
-      };
-      window.addEventListener("beforeunload", handleBeforeUnload);
-      return () => window.removeEventListener("beforeunload", handleBeforeUnload);
-    }
+      if (inviteGroupId) {
+        await joinGroupFromInvite(inviteGroupId, session.user.id);
+        navigate(`/group/${inviteGroupId}`);
+      } else {
+        navigate("/groups");
+      }
+    };
+    run();
   }, [navigate, inviteGroupId]);
 
   const handleAuth = async (e: React.FormEvent) => {
@@ -51,6 +45,8 @@ export default function Auth() {
     setLoading(true);
 
     try {
+      setRememberMe(rememberMe);
+
       if (isSignUp) {
         const { data, error } = await supabase.auth.signUp({
           email,
@@ -65,66 +61,40 @@ export default function Auth() {
 
         if (error) throw error;
 
-        // Manually create profile to ensure it exists
-        if (data.user) {
-          const { error: profileError } = await supabase
-            .from("profiles")
-            .upsert({
-              id: data.user.id,
-              phone_number: email,
-              display_name: displayName || email.split('@')[0],
-            });
-
-          if (profileError) console.error("Profile creation error:", profileError);
-          
-          // Auto-join group if invited
-          if (inviteGroupId) {
-            const { error: memberError } = await supabase
-              .from("group_members")
-              .insert({
-                group_id: inviteGroupId,
-                user_id: data.user.id,
-              });
-            
-            if (memberError) console.error("Auto-join error:", memberError);
-          }
+        // Profile + contact record are created automatically on sign up.
+        if (data.user && inviteGroupId) {
+          await joinGroupFromInvite(inviteGroupId, data.user.id);
         }
 
         toast({
           title: "Account created!",
-          description: inviteGroupId 
+          description: inviteGroupId
             ? `Welcome! Joining ${inviteGroupName || "group"}...`
             : "You're now signed in",
         });
-        
+
         if (inviteGroupId) {
           navigate(`/group/${inviteGroupId}`);
         } else {
           navigate("/groups");
         }
       } else {
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
 
         if (error) throw error;
 
-        // If "Remember me" is unchecked, set up auto-logout on browser close
-        if (!rememberMe) {
-          sessionStorage.setItem("autoLogout", "true");
-          window.addEventListener("beforeunload", async () => {
-            await supabase.auth.signOut();
-          });
-        } else {
-          sessionStorage.removeItem("autoLogout");
+        if (data.user && inviteGroupId) {
+          await joinGroupFromInvite(inviteGroupId, data.user.id);
         }
 
         toast({
           title: "Welcome back!",
           description: "You're signed in",
         });
-        
+
         if (inviteGroupId) {
           navigate(`/group/${inviteGroupId}`);
         } else {
