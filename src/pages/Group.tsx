@@ -522,13 +522,13 @@ const Group = () => {
 
   const memberNames = [
     ...members.map(m => m.display_name),
-    ...(demoAdded ? [DEMO_NAME] : []),
+    ...demoNames,
   ];
   const memberAvatars = members.reduce((acc, m) => {
     acc[m.display_name] = m.avatar_url || null;
     return acc;
   }, {} as Record<string, string | null>);
-  if (demoAdded) memberAvatars[DEMO_NAME] = null;
+  demoNames.forEach((n) => { memberAvatars[n] = null; });
   const allPints = { ...pints, ...demoPints };
 
 
