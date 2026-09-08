@@ -97,6 +97,33 @@ export default function Groups() {
     }
   };
 
+  const handleSaveName = async () => {
+    const trimmed = newDisplayName.trim();
+    if (!trimmed || !userId) return;
+
+    setSavingName(true);
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ display_name: trimmed })
+        .eq("id", userId);
+
+      if (error) throw error;
+
+      setUserDisplayName(trimmed);
+      setNameDialogOpen(false);
+      toast({ title: "Name updated", description: `You're now ${trimmed}` });
+    } catch (error: any) {
+      toast({
+        title: "Couldn't update name",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setSavingName(false);
+    }
+  };
+
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) return;
 
