@@ -28,7 +28,7 @@ interface Profile {
   avatar_url?: string | null;
 }
 
-const DEMO_NAME = "Sample Sam";
+
 
 const Group = () => {
   const { groupId } = useParams();
@@ -38,7 +38,8 @@ const Group = () => {
   const [members, setMembers] = useState<Profile[]>([]);
   const [pints, setPints] = useState<Record<string, PintEntry[]>>({});
   const [loading, setLoading] = useState(true);
-  const [demoAdded, setDemoAdded] = useState(false);
+  const [demoNames, setDemoNames] = useState<string[]>([]);
+  const [newDemoName, setNewDemoName] = useState("");
   const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
 
 
@@ -156,7 +157,37 @@ const Group = () => {
   };
 
   const isDemoPair = (from: string, to: string) =>
-    from === DEMO_NAME || to === DEMO_NAME;
+    demoNames.includes(from) || demoNames.includes(to);
+
+  const addDemoMate = () => {
+    const name = newDemoName.trim();
+    if (!name) return;
+    const taken = [...members.map((m) => m.display_name), ...demoNames].some(
+      (n) => n.toLowerCase() === name.toLowerCase()
+    );
+    if (taken) {
+      toast({
+        title: "Name already used",
+        description: "Pick a different name for your sample mate",
+        variant: "destructive",
+      });
+      return;
+    }
+    setDemoNames((prev) => [...prev, name]);
+    setNewDemoName("");
+  };
+
+  const removeDemoMate = (name: string) => {
+    setDemoNames((prev) => prev.filter((n) => n !== name));
+    setDemoPints((prev) => {
+      const next: Record<string, PintEntry[]> = {};
+      Object.entries(prev).forEach(([key, value]) => {
+        const [from, to] = key.split("->");
+        if (from !== name && to !== name) next[key] = value;
+      });
+      return next;
+    });
+  };
 
   const confirmAddPint = async (note: string, photo?: string) => {
     if (isDemoPair(addPintDialog.from, addPintDialog.to)) {
@@ -491,13 +522,13 @@ const Group = () => {
 
   const memberNames = [
     ...members.map(m => m.display_name),
-    ...(demoAdded ? [DEMO_NAME] : []),
+    ...demoNames,
   ];
   const memberAvatars = members.reduce((acc, m) => {
     acc[m.display_name] = m.avatar_url || null;
     return acc;
   }, {} as Record<string, string | null>);
-  if (demoAdded) memberAvatars[DEMO_NAME] = null;
+  demoNames.forEach((n) => { memberAvatars[n] = null; });
   const allPints = { ...pints, ...demoPints };
 
 
@@ -544,22 +575,47 @@ const Group = () => {
             </Button>
           </div>
 
-          <div className="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 animate-fade-up">
+          <div className="glass-card rounded-2xl p-4 space-y-3 animate-fade-up">
             <p className="text-sm text-muted-foreground">
-              {demoAdded
-                ? `"${DEMO_NAME}" is practice only — not saved.`
-                : "Try it out with a pretend mate"}
+              Try it out with pretend mates — practice only, not saved.
             </p>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setDemoAdded(!demoAdded);
-                if (demoAdded) setDemoPints({});
-              }}
-            >
-              {demoAdded ? "Remove" : "Add sample"}
-            </Button>
+            <div className="flex items-center gap-2">
+              <Input
+                value={newDemoName}
+                onChange={(e) => setNewDemoName(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter") {
+                    e.preventDefault();
+                    addDemoMate();
+                  }
+                }}
+                placeholder="Name your sample mate"
+                maxLength={24}
+                className="rounded-full h-9"
+              />
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={addDemoMate}
+                disabled={!newDemoName.trim()}
+              >
+                Add
+              </Button>
+            </div>
+            {demoNames.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {demoNames.map((name) => (
+                  <button
+                    key={name}
+                    onClick={() => removeDemoMate(name)}
+                    className="text-xs rounded-full bg-muted px-3 py-1 hover:bg-destructive/10 transition-colors"
+                    title="Remove sample mate"
+                  >
+                    {name} ✕
+                  </button>
+                ))}
+              </div>
+            )}
           </div>
         </div>
 
