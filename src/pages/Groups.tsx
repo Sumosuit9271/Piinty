@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Plus, Users, LogOut, ChevronRight, Camera, X, Pencil } from "lucide-react";
+import { Plus, Users, LogOut, ChevronRight, Camera, X, Pencil, BarChart3 } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
 import { enforceRememberMePolicy } from "@/lib/session";
@@ -35,6 +35,7 @@ export default function Groups() {
   const [nameDialogOpen, setNameDialogOpen] = useState(false);
   const [newDisplayName, setNewDisplayName] = useState("");
   const [savingName, setSavingName] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const navigate = useNavigate();
 
@@ -63,6 +64,13 @@ export default function Groups() {
       setUserDisplayName(profile.display_name);
       setUserAvatarUrl(profile.avatar_url);
     }
+
+    const { data: roles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", session.user.id)
+      .eq("role", "admin");
+    setIsAdmin(!!roles && roles.length > 0);
 
     loadGroups();
   };
@@ -308,9 +316,17 @@ export default function Groups() {
             </div>
           </div>
 
-          <Button variant="ghost" size="icon" onClick={handleSignOut}>
-            <LogOut className="h-5 w-5" />
-          </Button>
+          <div className="flex items-center gap-1">
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin")}>
+                <BarChart3 className="h-4 w-4" />
+                <span className="hidden sm:inline">Dashboard</span>
+              </Button>
+            )}
+            <Button variant="ghost" size="icon" onClick={handleSignOut}>
+              <LogOut className="h-5 w-5" />
+            </Button>
+          </div>
         </div>
         <input
           ref={fileInputRef}
