@@ -99,28 +99,43 @@ const Group = () => {
         .eq("group_id", groupId);
 
       if (membersError) throw membersError;
-      
-      const profilesList = membersData
+
+      const rawProfiles = membersData
         .map((m: any) => m.profiles)
         .filter(Boolean);
+
+      // Make sure two mates with the same name never share a column
+      const nameCounts: Record<string, number> = {};
+      const profilesList = rawProfiles.map((p: any) => {
+        const base = (p.display_name || "Mate").trim() || "Mate";
+        nameCounts[base] = (nameCounts[base] || 0) + 1;
+        return {
+          ...p,
+          display_name: nameCounts[base] > 1 ? `${base} (${nameCounts[base]})` : base,
+        };
+      });
       setMembers(profilesList);
 
-      // Load pints
+      const nameById: Record<string, string> = {};
+      profilesList.forEach((p: any) => { nameById[p.id] = p.display_name; });
+
+      // Load pints (most recent first, capped so long-running groups stay fast)
       const { data: pintsData, error: pintsError } = await supabase
         .from("pints")
-        .select(`
-          *,
-          from_profile:from_user_id(display_name),
-          to_profile:to_user_id(display_name)
-        `)
-        .eq("group_id", groupId);
+        .select("from_user_id, to_user_id, note, photo, paid, created_at")
+        .eq("group_id", groupId)
+        .order("created_at", { ascending: false })
+        .limit(1000);
 
       if (pintsError) throw pintsError;
 
-      // Convert to the format expected by components
+      // Convert to the format expected by components (oldest first)
       const pintsMap: Record<string, PintEntry[]> = {};
-      pintsData.forEach((pint: any) => {
-        const key = `${pint.from_profile.display_name}->${pint.to_profile.display_name}`;
+      [...pintsData].reverse().forEach((pint: any) => {
+        const from = nameById[pint.from_user_id];
+        const to = nameById[pint.to_user_id];
+        if (!from || !to) return;
+        const key = `${from}->${to}`;
         if (!pintsMap[key]) pintsMap[key] = [];
         pintsMap[key].push({
           note: pint.note || "",
