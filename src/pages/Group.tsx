@@ -27,6 +27,8 @@ interface Profile {
   avatar_url?: string | null;
 }
 
+const DEMO_NAME = "Sample Sam";
+
 const Group = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
@@ -35,6 +37,9 @@ const Group = () => {
   const [members, setMembers] = useState<Profile[]>([]);
   const [pints, setPints] = useState<Record<string, PintEntry[]>>({});
   const [loading, setLoading] = useState(true);
+  const [demoAdded, setDemoAdded] = useState(false);
+  const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
+
 
   const [addPintDialog, setAddPintDialog] = useState<{
     open: boolean;
@@ -149,12 +154,32 @@ const Group = () => {
     setAddPintDialog({ open: true, from, to });
   };
 
+  const isDemoPair = (from: string, to: string) =>
+    from === DEMO_NAME || to === DEMO_NAME;
+
   const confirmAddPint = async (note: string, photo?: string) => {
+    if (isDemoPair(addPintDialog.from, addPintDialog.to)) {
+      const key = `${addPintDialog.from}->${addPintDialog.to}`;
+      setDemoPints((prev) => ({
+        ...prev,
+        [key]: [
+          ...(prev[key] || []),
+          { note: note.trim(), timestamp: Date.now(), paid: false, photo },
+        ],
+      }));
+      toast({
+        title: "Pint added! 🍺",
+        description: `${addPintDialog.from} owes ${addPintDialog.to} a pint (sample)`,
+      });
+      return;
+    }
+
     try {
       const fromUser = members.find(m => m.display_name === addPintDialog.from);
       const toUser = members.find(m => m.display_name === addPintDialog.to);
 
       if (!fromUser || !toUser || !groupId) return;
+
 
       const { error } = await supabase.from("pints").insert({
         group_id: groupId,
@@ -185,6 +210,22 @@ const Group = () => {
   };
 
   const handleClearPint = async (from: string, to: string) => {
+    if (isDemoPair(from, to)) {
+      const key = `${from}->${to}`;
+      setDemoPints((prev) => {
+        const list = [...(prev[key] || [])];
+        for (let i = list.length - 1; i >= 0; i--) {
+          if (!list[i].paid) {
+            list[i] = { ...list[i], paid: true };
+            break;
+          }
+        }
+        return { ...prev, [key]: list };
+      });
+      toast({ title: "Pint cleared! ✓", description: `${from} paid back ${to}` });
+      return;
+    }
+
     try {
       const fromUser = members.find(m => m.display_name === from);
       const toUser = members.find(m => m.display_name === to);
@@ -233,10 +274,21 @@ const Group = () => {
   };
 
   const handleTogglePaid = async (index: number) => {
+    if (isDemoPair(historyDialog.from, historyDialog.to)) {
+      const key = `${historyDialog.from}->${historyDialog.to}`;
+      setDemoPints((prev) => {
+        const list = [...(prev[key] || [])];
+        if (list[index]) list[index] = { ...list[index], paid: !list[index].paid };
+        return { ...prev, [key]: list };
+      });
+      return;
+    }
+
     try {
       const key = `${historyDialog.from}->${historyDialog.to}`;
       const entry = pints[key]?.[index];
       if (!entry) return;
+
 
       const fromUser = members.find(m => m.display_name === historyDialog.from);
       const toUser = members.find(m => m.display_name === historyDialog.to);
@@ -436,11 +488,17 @@ const Group = () => {
     );
   }
 
-  const memberNames = members.map(m => m.display_name);
+  const memberNames = [
+    ...members.map(m => m.display_name),
+    ...(demoAdded ? [DEMO_NAME] : []),
+  ];
   const memberAvatars = members.reduce((acc, m) => {
     acc[m.display_name] = m.avatar_url || null;
     return acc;
   }, {} as Record<string, string | null>);
+  if (demoAdded) memberAvatars[DEMO_NAME] = null;
+  const allPints = { ...pints, ...demoPints };
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -490,7 +548,25 @@ const Group = () => {
           </Button>
         </div>
 
-        <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={pints} />
+        <div className="bg-secondary/30 border border-border rounded-lg p-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {demoAdded
+              ? `"${DEMO_NAME}" is just for practice — pints with them aren't saved.`
+              : "Want to try it out first? Add a pretend mate to practice with."}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setDemoAdded(!demoAdded);
+              if (demoAdded) setDemoPints({});
+            }}
+          >
+            {demoAdded ? "Remove Sample Mate" : "Add Sample Mate"}
+          </Button>
+        </div>
+
+        <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={allPints} />
 
         <section>
           <div className="mb-4">
@@ -502,7 +578,7 @@ const Group = () => {
           <PintMatrix
             members={memberNames}
             memberAvatars={memberAvatars}
-            pints={pints}
+            pints={allPints}
             onAddPint={handleAddPint}
             onClearPint={handleClearPint}
             onViewHistory={handleViewHistory}
@@ -510,8 +586,9 @@ const Group = () => {
         </section>
 
         <section>
-          <TallySection members={memberNames} pints={pints} />
+          <TallySection members={memberNames} pints={allPints} />
         </section>
+
       </main>
 
       <AddPintDialog
@@ -527,7 +604,7 @@ const Group = () => {
         onClose={() => setHistoryDialog({ open: false, from: "", to: "" })}
         fromMember={historyDialog.from}
         toMember={historyDialog.to}
-        pints={pints[`${historyDialog.from}->${historyDialog.to}`] || []}
+        pints={allPints[`${historyDialog.from}->${historyDialog.to}`] || []}
         onTogglePaid={handleTogglePaid}
       />
 
