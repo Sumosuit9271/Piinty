@@ -627,14 +627,37 @@ const Group = () => {
             {demoNames.length > 0 && (
               <div className="flex flex-wrap gap-2">
                 {demoNames.map((name) => (
-                  <button
+                  <div
                     key={name}
-                    onClick={() => removeDemoMate(name)}
-                    className="text-xs rounded-full bg-muted px-3 py-1 hover:bg-destructive/10 transition-colors"
-                    title="Remove sample mate"
+                    className="flex items-center gap-2 rounded-full bg-muted pl-1 pr-2 py-1"
                   >
-                    {name} ✕
-                  </button>
+                    <label className="cursor-pointer" title="Add a picture">
+                      <Avatar className="h-7 w-7">
+                        <AvatarImage src={demoAvatars[name]} />
+                        <AvatarFallback className="text-[10px]">
+                          {name.charAt(0).toUpperCase()}
+                        </AvatarFallback>
+                      </Avatar>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file) setDemoPhoto(name, file);
+                          e.target.value = "";
+                        }}
+                      />
+                    </label>
+                    <span className="text-xs">{name}</span>
+                    <button
+                      onClick={() => removeDemoMate(name)}
+                      className="text-xs text-muted-foreground hover:text-destructive"
+                      title="Remove sample mate"
+                    >
+                      ✕
+                    </button>
+                  </div>
                 ))}
               </div>
             )}
