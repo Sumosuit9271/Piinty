@@ -38,7 +38,8 @@ const Group = () => {
   const [members, setMembers] = useState<Profile[]>([]);
   const [pints, setPints] = useState<Record<string, PintEntry[]>>({});
   const [loading, setLoading] = useState(true);
-  const [demoAdded, setDemoAdded] = useState(false);
+  const [demoNames, setDemoNames] = useState<string[]>([]);
+  const [newDemoName, setNewDemoName] = useState("");
   const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
 
 
