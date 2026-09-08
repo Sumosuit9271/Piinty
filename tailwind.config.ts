@@ -58,10 +58,22 @@ export default {
           ring: "hsl(var(--sidebar-ring))",
         },
       },
+      fontFamily: {
+        display: ["'Bricolage Grotesque'", "system-ui", "sans-serif"],
+        sans: ["'Plus Jakarta Sans'", "system-ui", "sans-serif"],
+      },
+      backgroundImage: {
+        "gradient-primary": "var(--gradient-primary)",
+        "gradient-stout": "var(--gradient-stout)",
+      },
+      boxShadow: {
+        glow: "var(--shadow-glow)",
+        card: "var(--shadow-card)",
+      },
       borderRadius: {
         lg: "var(--radius)",
-        md: "calc(var(--radius) - 2px)",
-        sm: "calc(var(--radius) - 4px)",
+        md: "calc(var(--radius) - 4px)",
+        sm: "calc(var(--radius) - 8px)",
       },
       keyframes: {
         "accordion-down": {
@@ -80,11 +92,23 @@ export default {
             height: "0",
           },
         },
+        "pop-in": {
+          "0%": { transform: "scale(0.85)", opacity: "0" },
+          "60%": { transform: "scale(1.06)", opacity: "1" },
+          "100%": { transform: "scale(1)", opacity: "1" },
+        },
+        "fade-up": {
+          "0%": { transform: "translateY(10px)", opacity: "0" },
+          "100%": { transform: "translateY(0)", opacity: "1" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "pop-in": "pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "fade-up": "fade-up 0.35s ease-out both",
       },
+
     },
   },
   plugins: [require("tailwindcss-animate")],
