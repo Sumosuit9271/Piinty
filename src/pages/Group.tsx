@@ -40,6 +40,7 @@ const Group = () => {
   const [loading, setLoading] = useState(true);
   const [demoNames, setDemoNames] = useState<string[]>([]);
   const [newDemoName, setNewDemoName] = useState("");
+  const [demoAvatars, setDemoAvatars] = useState<Record<string, string>>({});
   const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
 
 
