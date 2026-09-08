@@ -154,12 +154,32 @@ const Group = () => {
     setAddPintDialog({ open: true, from, to });
   };
 
+  const isDemoPair = (from: string, to: string) =>
+    from === DEMO_NAME || to === DEMO_NAME;
+
   const confirmAddPint = async (note: string, photo?: string) => {
+    if (isDemoPair(addPintDialog.from, addPintDialog.to)) {
+      const key = `${addPintDialog.from}->${addPintDialog.to}`;
+      setDemoPints((prev) => ({
+        ...prev,
+        [key]: [
+          ...(prev[key] || []),
+          { note: note.trim(), timestamp: Date.now(), paid: false, photo },
+        ],
+      }));
+      toast({
+        title: "Pint added! 🍺",
+        description: `${addPintDialog.from} owes ${addPintDialog.to} a pint (sample)`,
+      });
+      return;
+    }
+
     try {
       const fromUser = members.find(m => m.display_name === addPintDialog.from);
       const toUser = members.find(m => m.display_name === addPintDialog.to);
 
       if (!fromUser || !toUser || !groupId) return;
+
 
       const { error } = await supabase.from("pints").insert({
         group_id: groupId,
