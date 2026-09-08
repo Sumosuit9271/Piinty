@@ -8,27 +8,30 @@ import Groups from "./pages/Groups";
 import Group from "./pages/Group";
 import NotFound from "./pages/NotFound";
 import { PWAInstallPrompt } from "./components/PWAInstallPrompt";
+import { ErrorBoundary } from "./components/ErrorBoundary";
 
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <PWAInstallPrompt />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Navigate to="/groups" replace />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/groups" element={<Groups />} />
-          <Route path="/group/:groupId" element={<Group />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <PWAInstallPrompt />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Navigate to="/groups" replace />} />
+            <Route path="/auth" element={<Auth />} />
+            <Route path="/groups" element={<Groups />} />
+            <Route path="/group/:groupId" element={<Group />} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
