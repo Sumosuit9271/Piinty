@@ -386,8 +386,49 @@ export default function Groups() {
         </Button>
       )}
 
+      {/* Change Name Dialog */}
+      <Dialog open={nameDialogOpen} onOpenChange={setNameDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <Pencil className="h-5 w-5 text-primary" />
+              Change your name
+            </DialogTitle>
+            <DialogDescription>
+              This is the name your mates see on the pint slate
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-2">
+            <label htmlFor="display-name" className="text-sm font-medium">
+              Your name
+            </label>
+            <Input
+              id="display-name"
+              placeholder="e.g., Max"
+              value={newDisplayName}
+              onChange={(e) => setNewDisplayName(e.target.value)}
+              maxLength={40}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleSaveName();
+              }}
+            />
+          </div>
+
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setNameDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveName} disabled={savingName || !newDisplayName.trim()}>
+              {savingName ? "Saving..." : "Save name"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Create Group Dialog */}
       <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
