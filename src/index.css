@@ -101,8 +101,9 @@ All colors MUST be HSL. */
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
     background-image:
-      radial-gradient(60rem 40rem at 50% -12rem, hsl(var(--primary) / 0.14), transparent 70%),
+      radial-gradient(60rem 40rem at 50% -14rem, hsl(var(--primary) / 0.18), transparent 70%),
       var(--gradient-stout);
+
     background-attachment: fixed;
   }
 
@@ -122,7 +123,8 @@ All colors MUST be HSL. */
   }
 
   .glass-card {
-    @apply bg-card/70 backdrop-blur-xl border border-border/70;
+    @apply bg-card/85 backdrop-blur-xl border border-border/70;
+
     box-shadow: var(--shadow-card);
   }
 
