@@ -27,6 +27,8 @@ interface Profile {
   avatar_url?: string | null;
 }
 
+const DEMO_NAME = "Sample Sam";
+
 const Group = () => {
   const { groupId } = useParams();
   const navigate = useNavigate();
