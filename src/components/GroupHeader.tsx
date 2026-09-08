@@ -105,47 +105,47 @@ export function GroupHeader({ groupName, groupAvatarUrl, groupId, onAddMember, o
   };
 
   return (
-    <header className="bg-card border-b border-border sticky top-0 z-10 shadow-sm">
-      <div className="container mx-auto px-4 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div 
-              className="relative cursor-pointer hover:opacity-80 transition-opacity"
-              onClick={handleAvatarClick}
-            >
-              <Avatar className="h-16 w-16">
-                <AvatarImage src={groupAvatarUrl || undefined} alt={groupName} />
-                <AvatarFallback className="text-lg">{groupName.slice(0, 2).toUpperCase()}</AvatarFallback>
-              </Avatar>
-              <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1.5">
-                <Camera className="h-4 w-4 text-primary-foreground" />
-              </div>
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold">{groupName}</h1>
-              <p className="text-sm text-muted-foreground">Keep track of owed pints between mates!</p>
-              {groupAvatarUrl && (
-                <button
-                  onClick={handleRemoveAvatar}
-                  className="text-xs text-destructive hover:underline mt-0.5"
-                >
-                  Remove picture
-                </button>
-              )}
+    <div className="flex-1 min-w-0">
+      <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center gap-3 min-w-0">
+          <div
+            className="relative cursor-pointer pint-transition hover:opacity-80"
+            onClick={handleAvatarClick}
+          >
+            <Avatar className="h-12 w-12 ring-2 ring-primary/40">
+              <AvatarImage src={groupAvatarUrl || undefined} alt={groupName} />
+              <AvatarFallback className="bg-secondary">{groupName.slice(0, 2).toUpperCase()}</AvatarFallback>
+            </Avatar>
+            <div className="absolute -bottom-1 -right-1 bg-primary rounded-full p-1">
+              <Camera className="h-3 w-3 text-primary-foreground" />
             </div>
           </div>
-
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onAddMember}>
-              <UserPlus className="h-4 w-4" />
-              <span className="hidden sm:inline">Add Member</span>
-            </Button>
-            <Button variant="ghost" size="icon" onClick={onSettings}>
-              <Settings className="h-4 w-4" />
-            </Button>
+          <div className="min-w-0">
+            <h1 className="font-display text-xl truncate">{groupName}</h1>
+            {groupAvatarUrl ? (
+              <button
+                onClick={handleRemoveAvatar}
+                className="text-[11px] text-muted-foreground hover:text-destructive"
+              >
+                Remove picture
+              </button>
+            ) : (
+              <p className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Pint slate</p>
+            )}
           </div>
         </div>
+
+        <div className="flex gap-2 shrink-0">
+          <Button variant="outline" size="sm" onClick={onAddMember}>
+            <UserPlus className="h-4 w-4" />
+            <span className="hidden sm:inline">Add</span>
+          </Button>
+          <Button variant="ghost" size="icon" onClick={onSettings}>
+            <Settings className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
+
       <input
         ref={fileInputRef}
         type="file"
@@ -153,6 +153,6 @@ export function GroupHeader({ groupName, groupAvatarUrl, groupId, onAddMember, o
         className="hidden"
         onChange={handleFileChange}
       />
-    </header>
+    </div>
   );
 }

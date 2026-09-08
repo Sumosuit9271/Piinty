@@ -1,105 +1,93 @@
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* Piinty design system — dark-first "stout & amber" scoreboard.
+All colors MUST be HSL. */
 
 @layer base {
   :root {
-    /* Beer-inspired warm palette */
-    --background: 40 40% 97%;
-    --foreground: 25 25% 20%;
+    /* Stout base */
+    --background: 24 22% 7%;
+    --foreground: 40 35% 96%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 25 25% 20%;
+    --card: 24 18% 11%;
+    --card-foreground: 40 35% 96%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 25 25% 20%;
+    --popover: 24 18% 11%;
+    --popover-foreground: 40 35% 96%;
 
-    /* Warm amber/golden primary */
-    --primary: 35 90% 55%;
-    --primary-foreground: 0 0% 100%;
+    /* Pint amber */
+    --primary: 38 96% 56%;
+    --primary-foreground: 24 40% 8%;
+    --primary-glow: 45 100% 68%;
 
-    /* Light amber secondary */
-    --secondary: 40 85% 92%;
-    --secondary-foreground: 25 60% 30%;
+    --secondary: 24 14% 16%;
+    --secondary-foreground: 40 30% 92%;
 
-    /* Muted tones */
-    --muted: 40 40% 94%;
-    --muted-foreground: 25 10% 50%;
+    --muted: 24 12% 15%;
+    --muted-foreground: 36 12% 66%;
 
-    /* Success green for adding pints */
-    --accent: 142 71% 45%;
-    --accent-foreground: 0 0% 100%;
+    /* Mint — positive actions */
+    --accent: 158 72% 48%;
+    --accent-foreground: 160 60% 8%;
 
-    /* Soft destructive */
-    --destructive: 0 70% 55%;
+    /* Coral — you owe */
+    --destructive: 356 82% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Borders and inputs */
-    --border: 40 30% 88%;
-    --input: 40 30% 90%;
-    --ring: 35 90% 55%;
+    --border: 30 12% 20%;
+    --input: 30 12% 20%;
+    --ring: 38 96% 56%;
 
-    --radius: 0.75rem;
+    --radius: 1.1rem;
 
-    --sidebar-background: 0 0% 98%;
+    --gradient-primary: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary-glow)));
+    --gradient-stout: linear-gradient(180deg, hsl(24 22% 9%), hsl(24 24% 5%));
+    --shadow-glow: 0 18px 60px -20px hsl(var(--primary) / 0.55);
+    --shadow-card: 0 14px 40px -22px hsl(24 40% 2% / 0.9);
 
-    --sidebar-foreground: 240 5.3% 26.1%;
-
-    --sidebar-primary: 240 5.9% 10%;
-
-    --sidebar-primary-foreground: 0 0% 98%;
-
-    --sidebar-accent: 240 4.8% 95.9%;
-
-    --sidebar-accent-foreground: 240 5.9% 10%;
-
-    --sidebar-border: 220 13% 91%;
-
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --sidebar-background: 24 18% 10%;
+    --sidebar-foreground: 40 30% 90%;
+    --sidebar-primary: 38 96% 56%;
+    --sidebar-primary-foreground: 24 40% 8%;
+    --sidebar-accent: 24 14% 16%;
+    --sidebar-accent-foreground: 40 30% 90%;
+    --sidebar-border: 30 12% 20%;
+    --sidebar-ring: 38 96% 56%;
   }
 
   .dark {
-    /* Dark mode - cozy pub atmosphere */
-    --background: 25 35% 12%;
-    --foreground: 40 40% 95%;
+    --background: 24 22% 7%;
+    --foreground: 40 35% 96%;
 
-    --card: 25 30% 16%;
-    --card-foreground: 40 40% 95%;
+    --card: 24 18% 11%;
+    --card-foreground: 40 35% 96%;
 
-    --popover: 25 30% 16%;
-    --popover-foreground: 40 40% 95%;
+    --popover: 24 18% 11%;
+    --popover-foreground: 40 35% 96%;
 
-    --primary: 35 90% 55%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 38 96% 56%;
+    --primary-foreground: 24 40% 8%;
+    --primary-glow: 45 100% 68%;
 
-    --secondary: 25 25% 22%;
-    --secondary-foreground: 40 40% 95%;
+    --secondary: 24 14% 16%;
+    --secondary-foreground: 40 30% 92%;
 
-    --muted: 25 25% 20%;
-    --muted-foreground: 40 15% 60%;
+    --muted: 24 12% 15%;
+    --muted-foreground: 36 12% 66%;
 
-    --accent: 142 71% 45%;
-    --accent-foreground: 0 0% 100%;
+    --accent: 158 72% 48%;
+    --accent-foreground: 160 60% 8%;
 
-    --destructive: 0 70% 55%;
+    --destructive: 356 82% 62%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 25 20% 25%;
-    --input: 25 20% 25%;
-    --ring: 35 90% 55%;
-    
-    --sidebar-background: 25 30% 14%;
-    --sidebar-foreground: 40 40% 90%;
-    --sidebar-primary: 35 90% 55%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 25 25% 20%;
-    --sidebar-accent-foreground: 40 40% 90%;
-    --sidebar-border: 25 20% 22%;
-    --sidebar-ring: 35 90% 55%;
+    --border: 30 12% 20%;
+    --input: 30 12% 20%;
+    --ring: 38 96% 56%;
   }
 }
 
@@ -111,15 +99,54 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
     font-feature-settings: "rlig" 1, "calt" 1;
+    background-image:
+      radial-gradient(60rem 40rem at 50% -12rem, hsl(var(--primary) / 0.14), transparent 70%),
+      var(--gradient-stout);
+    background-attachment: fixed;
+  }
+
+  h1, h2, h3, .font-display {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    letter-spacing: -0.02em;
   }
 }
 
 @layer utilities {
   .pint-transition {
-    @apply transition-all duration-300 ease-in-out;
+    @apply transition-all duration-200 ease-out;
   }
-  
+
   .pint-hover {
-    @apply hover:scale-105 hover:shadow-md pint-transition;
+    @apply hover:-translate-y-0.5 hover:shadow-lg pint-transition active:translate-y-0 active:scale-[0.98];
+  }
+
+  .glass-card {
+    @apply bg-card/70 backdrop-blur-xl border border-border/70;
+    box-shadow: var(--shadow-card);
+  }
+
+  .amber-glow {
+    box-shadow: var(--shadow-glow);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .text-gradient-amber {
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

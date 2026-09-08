@@ -143,17 +143,20 @@ export default function Auth() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center p-4">
-      <Card className="w-full max-w-md p-8">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
+      <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[28rem] w-[28rem] rounded-full bg-primary/25 blur-[120px]" />
+
+      <Card className="w-full max-w-md p-8 rounded-3xl glass-card relative animate-fade-up">
         <div className="flex flex-col items-center mb-8">
-          <img src={piintyLogo} alt="Piinty Logo" className="h-40 w-auto mb-4" />
-          <p className="text-muted-foreground text-center">
-            {inviteGroupName 
+          <img src={piintyLogo} alt="Piinty Logo" className="h-40 w-auto mb-4 drop-shadow-[0_10px_40px_hsl(var(--primary)/0.45)]" />
+          <p className="text-muted-foreground text-center text-sm">
+            {inviteGroupName
               ? `Join ${inviteGroupName} to track pints together!`
               : "Keep track of owed pints between mates!"
             }
           </p>
         </div>
+
 
         <form onSubmit={handleAuth} className="space-y-4">
           {isSignUp && (
@@ -217,9 +220,10 @@ export default function Auth() {
             </div>
           )}
 
-          <Button type="submit" className="w-full" disabled={loading}>
-            {loading ? "Loading..." : isSignUp ? "Sign Up" : "Sign In"}
+          <Button type="submit" size="lg" className="w-full" disabled={loading}>
+            {loading ? "Pouring..." : isSignUp ? "Create account" : "Sign in"}
           </Button>
+
         </form>
 
         <div className="mt-6 text-center">
@@ -234,7 +238,8 @@ export default function Auth() {
       </Card>
 
       {showPWAGuide && (
-        <Card className="w-full max-w-md p-6 mt-4 bg-primary/5 border-primary/20 relative">
+        <Card className="w-full max-w-md p-6 mt-4 rounded-3xl glass-card border-primary/20 relative animate-fade-up">
+
           <Button
             variant="ghost"
             size="icon"

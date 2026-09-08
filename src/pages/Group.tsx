@@ -501,9 +501,9 @@ const Group = () => {
 
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="sticky top-0 z-10 bg-background border-b">
-        <div className="container mx-auto px-4 py-3 flex items-center gap-3">
+    <div className="min-h-screen">
+      <div className="sticky top-0 z-30 bg-background/80 backdrop-blur-xl border-b border-border/60">
+        <div className="container mx-auto px-4 py-3 flex items-center gap-2">
           <Button
             variant="ghost"
             size="icon"
@@ -533,48 +533,45 @@ const Group = () => {
         </div>
       </div>
 
-      <main className="container mx-auto px-4 py-8 space-y-8">
-        <div className="bg-secondary/30 border border-border rounded-lg p-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Use this link to invite friends to Piinty!
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleShareInvite}
-          >
-            <Share2 className="h-4 w-4 mr-2" />
-            Share Link
-          </Button>
-        </div>
+      <main className="container mx-auto px-4 py-8 space-y-8 max-w-5xl">
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 animate-fade-up">
+            <p className="text-sm text-muted-foreground">Invite your mates to Piinty</p>
+            <Button variant="outline" size="sm" onClick={handleShareInvite}>
+              <Share2 className="h-4 w-4" />
+              Share
+            </Button>
+          </div>
 
-        <div className="bg-secondary/30 border border-border rounded-lg p-4 flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            {demoAdded
-              ? `"${DEMO_NAME}" is just for practice — pints with them aren't saved.`
-              : "Want to try it out first? Add a pretend mate to practice with."}
-          </p>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              setDemoAdded(!demoAdded);
-              if (demoAdded) setDemoPints({});
-            }}
-          >
-            {demoAdded ? "Remove Sample Mate" : "Add Sample Mate"}
-          </Button>
+          <div className="glass-card rounded-2xl p-4 flex items-center justify-between gap-3 animate-fade-up">
+            <p className="text-sm text-muted-foreground">
+              {demoAdded
+                ? `"${DEMO_NAME}" is practice only — not saved.`
+                : "Try it out with a pretend mate"}
+            </p>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                setDemoAdded(!demoAdded);
+                if (demoAdded) setDemoPints({});
+              }}
+            >
+              {demoAdded ? "Remove" : "Add sample"}
+            </Button>
+          </div>
         </div>
 
         <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={allPints} />
 
-        <section>
+        <section className="animate-fade-up">
           <div className="mb-4">
-            <h2 className="text-xl font-semibold mb-1">Who Owes Who?</h2>
+            <h2 className="font-display text-2xl">Who owes who?</h2>
             <p className="text-sm text-muted-foreground">
-              Track pints between your mates
+              Rows owe columns. Keep the slate honest.
             </p>
           </div>
+
           <PintMatrix
             members={memberNames}
             memberAvatars={memberAvatars}
