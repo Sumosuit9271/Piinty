@@ -153,6 +153,6 @@ export function GroupHeader({ groupName, groupAvatarUrl, groupId, onAddMember, o
         className="hidden"
         onChange={handleFileChange}
       />
-    </header>
+    </div>
   );
 }
