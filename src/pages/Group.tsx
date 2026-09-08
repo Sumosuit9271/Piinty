@@ -548,7 +548,25 @@ const Group = () => {
           </Button>
         </div>
 
-        <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={pints} />
+        <div className="bg-secondary/30 border border-border rounded-lg p-4 flex items-center justify-between">
+          <p className="text-sm text-muted-foreground">
+            {demoAdded
+              ? `"${DEMO_NAME}" is just for practice — pints with them aren't saved.`
+              : "Want to try it out first? Add a pretend mate to practice with."}
+          </p>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              setDemoAdded(!demoAdded);
+              if (demoAdded) setDemoPints({});
+            }}
+          >
+            {demoAdded ? "Remove Sample Mate" : "Add Sample Mate"}
+          </Button>
+        </div>
+
+        <Leaderboard members={memberNames} memberAvatars={memberAvatars} pints={allPints} />
 
         <section>
           <div className="mb-4">
@@ -560,7 +578,7 @@ const Group = () => {
           <PintMatrix
             members={memberNames}
             memberAvatars={memberAvatars}
-            pints={pints}
+            pints={allPints}
             onAddPint={handleAddPint}
             onClearPint={handleClearPint}
             onViewHistory={handleViewHistory}
@@ -568,8 +586,9 @@ const Group = () => {
         </section>
 
         <section>
-          <TallySection members={memberNames} pints={pints} />
+          <TallySection members={memberNames} pints={allPints} />
         </section>
+
       </main>
 
       <AddPintDialog
