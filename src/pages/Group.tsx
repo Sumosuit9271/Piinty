@@ -35,6 +35,9 @@ const Group = () => {
   const [members, setMembers] = useState<Profile[]>([]);
   const [pints, setPints] = useState<Record<string, PintEntry[]>>({});
   const [loading, setLoading] = useState(true);
+  const [demoAdded, setDemoAdded] = useState(false);
+  const [demoPints, setDemoPints] = useState<Record<string, PintEntry[]>>({});
+
 
   const [addPintDialog, setAddPintDialog] = useState<{
     open: boolean;
