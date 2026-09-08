@@ -16,6 +16,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Plus, Users, LogOut, ChevronRight, Camera, X, Pencil } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 import piintyLogo from "@/assets/piinty-logo.png";
+import { enforceRememberMePolicy } from "@/lib/session";
 
 interface Group {
   id: string;
