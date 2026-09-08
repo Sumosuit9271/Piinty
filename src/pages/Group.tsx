@@ -390,66 +390,8 @@ const Group = () => {
     }
   };
 
-  const handleAddMember = async () => {
-    const trimmed = newMemberPhone.trim();
-    if (!trimmed || !groupId) return;
+  // Mates join by opening the group's invite link (see handleShareInvite).
 
-    const fullPhone = `+${newMemberCountryCode}${trimmed}`;
-
-    try {
-      // Find user by phone
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("id, display_name")
-        .eq("phone_number", fullPhone)
-        .single();
-
-      if (profileError) {
-        toast({
-          title: "User not found",
-          description: "No user with that phone number",
-          variant: "destructive",
-        });
-        return;
-      }
-
-      // Add to group
-      const { error: memberError } = await supabase
-        .from("group_members")
-        .insert({
-          group_id: groupId,
-          user_id: profile.id,
-        });
-
-      if (memberError) {
-        if (memberError.code === "23505") {
-          toast({
-            title: "Already a member",
-            description: "This user is already in the group",
-            variant: "destructive",
-          });
-        } else {
-          throw memberError;
-        }
-        return;
-      }
-
-      toast({
-        title: "Member added!",
-        description: `${profile.display_name} joined the group`,
-      });
-
-      setNewMemberPhone("");
-      setAddMemberDialog(false);
-      loadGroupData();
-    } catch (error: any) {
-      toast({
-        title: "Error adding member",
-        description: error.message,
-        variant: "destructive",
-      });
-    }
-  };
 
   const handleRemoveMember = async (member: Profile) => {
     if (members.length <= 2) {
