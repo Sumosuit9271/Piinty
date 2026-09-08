@@ -203,23 +203,53 @@ export type Database = {
           created_at: string
           display_name: string | null
           id: string
-          phone_number: string
         }
         Insert: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id: string
-          phone_number: string
         }
         Update: {
           avatar_url?: string | null
           created_at?: string
           display_name?: string | null
           id?: string
-          phone_number?: string
         }
         Relationships: []
+      }
+      user_contacts: {
+        Row: {
+          contact: string
+          created_at: string
+          id: string
+        }
+        Insert: {
+          contact: string
+          created_at?: string
+          id: string
+        }
+        Update: {
+          contact?: string
+          created_at?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_contacts_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_contacts_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "public_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
